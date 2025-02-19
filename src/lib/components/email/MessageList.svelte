@@ -631,9 +631,7 @@
         color: var(--primary);
     }
 
-    .message-item.unread {
-        background: var(--bg-hover);
-    }
+   
 
     .message-item.unread .message-name,
     .message-item.unread .message-subject {
