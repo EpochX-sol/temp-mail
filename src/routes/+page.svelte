@@ -13,9 +13,22 @@
     let generatedEmail = '';
     let storedEmail = '';
     let isCopied = false;
+    let iterationCount = 0;
+    const maxIterations = 10;
+    let iterationInterval;
+    let restartTimeout;
+
     const randomDomains = () => {
-        const randomChars = Math.random().toString(36).substring(2, 6);
-        return `@${randomChars}.com`;
+        return '@ultrambox.com';
+    };
+
+    const generateRandomString = () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
     };
 
     onMount(() => {
@@ -26,9 +39,33 @@
             emailStore.setCurrentEmail(currentEmail);
             storedEmail = currentEmail;
         }
-        generateRandomEmail();
-        setInterval(generateRandomEmail, 5000);
+        startEmailAnimation();
+        
+        return () => {
+            clearInterval(iterationInterval);
+            clearTimeout(restartTimeout);
+        };
     });
+
+    function startEmailAnimation() {
+        iterationCount = 0;
+        clearInterval(iterationInterval);
+        clearTimeout(restartTimeout);
+        
+        iterationInterval = setInterval(() => {
+            if (iterationCount >= maxIterations) {
+                clearInterval(iterationInterval);
+                restartTimeout = setTimeout(() => {
+                    if (!hasEmail) {
+                        startEmailAnimation();
+                    }
+                }, 3000);
+                return;
+            }
+            generatedEmail = generateRandomString() + randomDomains();
+            iterationCount++;
+        }, 50);
+    }
 
     async function handleGetEmail() {
         loading = true;
@@ -44,12 +81,6 @@
         } finally {
             loading = false;
         }
-    }
-
-    function generateRandomEmail() {
-        const randomString = Math.random().toString(36).substring(2, 8);
-        generatedEmail = randomString + randomDomains();
-        emailCount += 1;
     }
 
     function copyEmail() {
@@ -90,7 +121,7 @@
                     </h2>
                 {:else if generatedEmail}
                     <h2 class="dynamic-email preview">
-                        <span class="email-display">{generatedEmail}</span>
+                        <span class="email-display {iterationCount >= maxIterations ? 'final' : 'animating'}">{generatedEmail}</span>
                     </h2>
                 {/if}
                 {#if !hasEmail}
@@ -303,6 +334,12 @@
         border: 1px solid rgba(59, 130, 246, 0.2);
         box-shadow: none;
         max-width: 400px;
+        transition: all 0.3s ease;
+    }
+
+    .dynamic-email.preview:has(.email-display.final) {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.3);
     }
 
     .email-display {
@@ -384,5 +421,40 @@
         font-size: 1.1rem;
     }
 
- 
+    .generated-email {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+        animation: pulse 2s infinite;
+    }
+
+    .generated-email.final {
+        animation: none;
+        color: var(--primary);
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+
+    .email-display {  
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .email-display.animating {
+        animation: pulse 0.5s infinite;
+    }
+
+    .email-display.final {
+        animation: none;
+        color: #3b82f6;
+    }
+
 </style>

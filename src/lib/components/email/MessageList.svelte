@@ -9,7 +9,67 @@
     let selectedMessages = new Set();
     let allSelected = false;
 
+    const demoMessages = [
+        {
+            uid: '1',
+            name: 'us@inboxes.com',
+            subject: 'Welcome to our service - Welcome to the inboxes.com temporary email service',
+            time: 'A few seconds ago',
+            from: {
+                name: 'Welcome Bot',
+                address: 'us@inboxes.com'
+            },
+            is_starred: false,
+            is_read: false,
+            avatarColor: '#FFE2E5',
+            avatarTextColor: '#F1416C'
+        },
+        {
+            uid: '2',
+            name: 'support@inboxes.com',
+            subject: 'Have questions? - you can contact us for help',
+            time: '39 seconds ago',
+            from: {
+                name: 'Support Team',
+                address: 'support@inboxes.com'
+            },
+            is_starred: false,
+            is_read: false,
+            avatarColor: '#E8FFF3',
+            avatarTextColor: '#50CD89'
+        },
+        {
+            uid: '3',
+            name: 'security@inboxes.com',
+            subject: 'Your privacy is our priority - Learn about our security features',
+            time: '1 minute ago',
+            from: {
+                name: 'Security Team',
+                address: 'security@inboxes.com'
+            },
+            is_starred: false,
+            is_read: false,
+            avatarColor: '#FFF8DD',
+            avatarTextColor: '#FFA800'
+        },
+        {
+            uid: '4',
+            name: 'tips@inboxes.com',
+            subject: 'Pro tips for using temporary email - Get the most out of our service',
+            time: '2 minutes ago',
+            from: {
+                name: 'Tips & Tricks',
+                address: 'tips@inboxes.com'
+            },
+            is_starred: false,
+            is_read: false,
+            avatarColor: '#EEE5FF',
+            avatarTextColor: '#7239EA'
+        }
+    ];
+
     $: messages = $emailStore.messages;
+    $: displayMessages = $emailStore.currentEmail ? messages : demoMessages;
 
     onMount(() => {
         const cleanup = emailStore.startPolling();
@@ -106,17 +166,19 @@
         </div>
     </div>
 
-    {#if !$emailStore.currentEmail || messages.length === 0}
+    {#if $emailStore.currentEmail && messages.length === 0}
         <div class="loading-container">
             <LoadingSpinner />
             <p class="loading-text">Your inbox is empty</p>
         </div>
     {:else}
         <div class="messages">
-            {#each messages as message}
+            {#each displayMessages as message, index}
                 <div 
                     class="message-item" 
                     class:unread={!message.is_read}
+                    class:demo={!$emailStore.currentEmail && index < 2}
+                    class:blurred={!$emailStore.currentEmail && index >= 2}
                     on:click={() => handleMarkAsRead(message.uid)}
                 >
                     <label class="checkbox-wrapper" on:click|stopPropagation>
@@ -581,5 +643,26 @@
     .tool-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+
+    .message-item.demo {
+        opacity: 0.9;
+        pointer-events: none;
+    }
+
+    .message-item.blurred {
+        opacity: 0.4;
+        filter: blur(2px);
+        pointer-events: none;
+    }
+
+    .message-item.blurred:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .message-item.demo:hover {
+        transform: none;
+        box-shadow: none;
     }
 </style>
