@@ -338,8 +338,7 @@
         gap: 16px; 
     }
 
-    .message-item:hover {
-        background: var(--bg-hover);
+    .message-item:hover { 
         cursor: pointer;
     }
 
