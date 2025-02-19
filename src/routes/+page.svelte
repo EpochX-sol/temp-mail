@@ -5,6 +5,7 @@
     import { emailStore } from '$lib/stores/emailStore';
     import { apiService } from '$lib/services/api';
     import FAQ from '$lib/components/common/FAQ.svelte';
+    import Features from '$lib/components/common/Features.svelte';
 
     let hasEmail = false;
     let loading = false;
@@ -126,10 +127,9 @@
                     <MessageList />
                 </section>
             </div>
-        </main>
-        {#if !hasEmail}
-            <FAQ />
-        {/if}
+        </main> 
+            <Features />
+            <FAQ /> 
 </div>
 
 <style>

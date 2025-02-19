@@ -4,10 +4,7 @@
 
 <footer class="footer">
     <div class="footer-content">
-        <div class="footer-brand">
-            <div class="logo">
-                <img src="/assets/media/logos/logo-dark.png" alt="Inboxes" />
-            </div>
+        <div class="footer-brand"> 
             <p class="description">
                 Inboxes is a free temporary email service. Use our inboxes to get a disposable email and protect your real email from spam.
             </p>

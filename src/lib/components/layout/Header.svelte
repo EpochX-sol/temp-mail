@@ -1,6 +1,14 @@
 <script>
     import { themeStore } from '$lib/stores/themeStore';
     import ThemeToggle from './ThemeToggle.svelte';
+
+    function scrollToFaq(e) {
+        e.preventDefault();
+        const faqSection = document.getElementById('faq');
+        if (faqSection) {
+            faqSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 </script>
 
 <header class="main-header">
@@ -13,7 +21,7 @@
 
         <nav class="main-nav">
             <a href="/" class="nav-link active">Home</a>
-            <a href="/faq" class="nav-link">FAQ</a>
+            <button class="nav-link" on:click={scrollToFaq}>FAQ</button>
             <a href="/api" class="nav-link">API</a>
 
             <a href="/contact" class="nav-link">Contact Us</a>
@@ -88,6 +96,9 @@
         height: 60px;
         display: flex;
         align-items: center;
+        background: none;
+        border: none;
+        cursor: pointer;
     }
 
     .nav-link:hover {

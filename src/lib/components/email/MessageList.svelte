@@ -8,33 +8,8 @@
     let searchQuery = '';
     let selectedMessages = new Set();
     let allSelected = false;
-    let starredMessages = new Set();
-
-    const demoMessages = [
-        {
-            id: 1,
-            name: 'us@inboxes.com',
-            subject: 'Welcome to our service - Welcome to the inboxes.com temporary email service',
-            time: 'A few seconds ago',
-            avatar: 'U',
-            avatarColor: '#FFE2E5',
-            avatarTextColor: '#F1416C',
-        },
-        {
-            id: 2,
-            name: 'support@inboxes.com',
-            subject: 'Have questions? - you can contact us for help',
-            time: '39 seconds ago',
-            avatar: 'S',
-            avatarColor: '#E8FFF3',
-            avatarTextColor: '#50CD89'
-        }
-    ];
 
     $: messages = $emailStore.messages;
-    $: loading = $emailStore.loading;
-    $: error = $emailStore.error;
-    $: displayMessages = $emailStore.currentEmail ? messages : demoMessages;
 
     onMount(() => {
         const cleanup = emailStore.startPolling();
@@ -63,6 +38,23 @@
         allSelected = selectedMessages.size === messages.length;
     }
 
+    async function handleDelete() {
+        if (selectedMessages.size > 0) {
+            const uids = Array.from(selectedMessages);
+            await emailStore.bulkDelete(uids);
+            selectedMessages.clear();
+            allSelected = false;
+        }
+    }
+
+    async function handleMarkAsRead(uid) {
+        await emailStore.markAsRead(uid);
+    }
+
+    async function handleMarkAsUnread(uid) {
+        await emailStore.markAsUnread(uid);
+    }
+
     async function toggleStar(uid) {
         await emailStore.toggleStar(uid);
     }
@@ -89,7 +81,11 @@
                 <i class="bi bi-arrow-clockwise"></i>
                 <span class="tooltip">Refresh</span>
             </button>
-            <button class="tool-btn tooltip-container">
+            <button 
+                class="tool-btn tooltip-container" 
+                on:click={handleDelete}
+                disabled={selectedMessages.size === 0}
+            >
                 <i class="bi bi-trash"></i>
                 <span class="tooltip">Delete</span>
             </button>
@@ -110,20 +106,20 @@
         </div>
     </div>
 
-    {#if $emailStore.currentEmail && loading && messages.length === 0}
+    {#if !$emailStore.currentEmail || messages.length === 0}
         <div class="loading-container">
             <LoadingSpinner />
-        </div>
-    {:else if messages.length === 0}
-        <div class="empty-state">
-            <i class="bi bi-inbox"></i>
-            <p class="empty-text">Your inbox is empty!</p>
+            <p class="loading-text">Your inbox is empty</p>
         </div>
     {:else}
         <div class="messages">
-            {#each displayMessages as message, index}
-                <div class="message-item {!$emailStore.currentEmail && index >= 2 ? 'blurred' : ''}">
-                    <label class="checkbox-wrapper">
+            {#each messages as message}
+                <div 
+                    class="message-item" 
+                    class:unread={!message.is_read}
+                    on:click={() => handleMarkAsRead(message.uid)}
+                >
+                    <label class="checkbox-wrapper" on:click|stopPropagation>
                         <input 
                             type="checkbox"
                             checked={selectedMessages.has(message.uid)}
@@ -133,11 +129,18 @@
                     </label>
                     <button 
                         class="star-btn tooltip-container" 
-                        class:starred={message.is_starred || starredMessages.has(message.uid)}
-                        on:click={() => toggleStar(message.uid)}
+                        class:starred={message.is_starred}
+                        on:click|stopPropagation={() => toggleStar(message.uid)}
                     >
-                        <i class="bi {message.is_starred || starredMessages.has(message.uid) ? 'bi-star-fill' : 'bi-star'}"></i>
+                        <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'}"></i>
                         <span class="tooltip">Star</span>
+                    </button>
+                    <button 
+                        class="read-btn tooltip-container"
+                        on:click|stopPropagation={() => message.is_read ? handleMarkAsUnread(message.uid) : handleMarkAsRead(message.uid)}
+                    >
+                        <i class="bi {message.is_read ? 'bi-envelope-open' : 'bi-envelope-fill'}"></i>
+                        <span class="tooltip">{message.is_read ? 'Mark as unread' : 'Mark as read'}</span>
                     </button>
                     <div class="message-avatar">
                         <div class="avatar-letter" style="background: {message.avatarColor || '#E8FFF3'}; color: {message.avatarTextColor || '#50CD89'}">
@@ -551,31 +554,32 @@
         color: var(--text-muted);
         font-size: 14px;
         margin-top: 8px;
+        text-align: center;
     }
 
-    .empty-state {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 48px 0;
-    }
-
-    .empty-text {
+    .read-btn {
+        background: none;
+        border: none;
         color: var(--text-muted);
-        font-size: 14px;
-        margin-top: 12px;
+        padding: 4px;
+        cursor: pointer;
     }
 
-    .empty-state i {
-        font-size: 2.5rem;
-        color: var(--text-muted);
-        margin-bottom: 16px;
+    .read-btn:hover {
+        color: var(--primary);
     }
 
-    .message-item.blurred {
+    .message-item.unread {
+        background: var(--bg-hover);
+    }
+
+    .message-item.unread .message-name,
+    .message-item.unread .message-subject {
+        font-weight: 600;
+    }
+
+    .tool-btn:disabled {
         opacity: 0.5;
-        filter: blur(3px);
-        pointer-events: none;
+        cursor: not-allowed;
     }
 </style>
