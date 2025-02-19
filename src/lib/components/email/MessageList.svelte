@@ -197,13 +197,7 @@
                         <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'}"></i>
                         <span class="tooltip">Star</span>
                     </button>
-                    <button 
-                        class="read-btn tooltip-container"
-                        on:click|stopPropagation={() => message.is_read ? handleMarkAsUnread(message.uid) : handleMarkAsRead(message.uid)}
-                    >
-                        <i class="bi {message.is_read ? 'bi-envelope-open' : 'bi-envelope-fill'}"></i>
-                        <span class="tooltip">{message.is_read ? 'Mark as unread' : 'Mark as read'}</span>
-                    </button>
+
                     <div class="message-avatar">
                         <div class="avatar-letter" style="background: {message.avatarColor || '#E8FFF3'}; color: {message.avatarTextColor || '#50CD89'}">
                             {message.from?.name?.[0] || message.name?.[0] || 'U'}
