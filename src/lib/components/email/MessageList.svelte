@@ -462,8 +462,7 @@
         transition: background-color 0.2s ease, border-left 0.2s ease;
     }
 
-    .message-item:hover {
-        background: var(--bg-hover);
+    .message-item:hover { 
         cursor: pointer;
     }
 
