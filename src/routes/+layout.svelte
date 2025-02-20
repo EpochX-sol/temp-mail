@@ -34,6 +34,10 @@
             headerVisible = lastScrollY > currentScrollY || currentScrollY < 50;
             lastScrollY = currentScrollY;
         });
+
+        // Ensure theme is applied on initial load
+        const theme = $themeStore;
+        document.documentElement.classList.add(theme);
     });
 </script>
 

@@ -1,8 +1,18 @@
 <script>
     import { themeStore } from '$lib/stores/themeStore';
+    import { onMount } from 'svelte';
+
+    onMount(() => {
+        // Ensure initial theme is applied
+        document.documentElement.classList.toggle('dark', $themeStore === 'dark');
+    });
 </script>
 
-<button class="theme-toggle" on:click={() => themeStore.toggleTheme()}>
+<button 
+    class="theme-toggle" 
+    on:click={() => themeStore.toggleTheme()}
+    aria-label="Toggle theme"
+>
     {#if $themeStore === 'dark'}
         <i class="bi bi-sun-fill"></i>
     {:else}
@@ -14,14 +24,24 @@
     .theme-toggle {
         background: none;
         border: none;
-        color: #9ca3af;
+        color: var(--text-muted);
         font-size: 20px;
         cursor: pointer;
-        padding: 4px;
-        transition: color 0.2s;
+        padding: 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
     }
 
     .theme-toggle:hover {
+        color: var(--text-primary);
+        background: var(--bg-hover);
+    }
+
+    :global(.dark) .theme-toggle {
+        color: #9ca3af;
+    }
+
+    :global(.dark) .theme-toggle:hover {
         color: white;
     }
 </style> 
