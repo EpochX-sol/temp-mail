@@ -907,98 +907,20 @@
         margin: 16px 0;
     }
 
-    .custom-email-input {
-        display: flex;
-        align-items: center;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 8px 16px;
-        width: 100%;
-    }
-
-    .custom-email-input input {
-        border: none;
-        background: none;
-        color: var(--text-primary);
-        font-size: 1rem;
-        outline: none;
-        width: 100%;
-        min-width: 0;
-    }
-
-    .custom-email-input .domain {
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        white-space: nowrap;
-    }
-
-    .domain-select {
-        background: var(--bg-hover);
-        border: 1px solid var(--border-color);
-        color: var(--text-muted);
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.95rem;
-        cursor: pointer;
-        outline: none;
-    }
-
-    .domain-select:focus {
-        border-color: var(--primary);
-    }
-
-    .add-btn {
-        margin-top: 12px;
-        background: var(--primary);
-        color: white;
-        border: none;
-    }
-
-    .add-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .email-creation-options {
-        padding: 16px 0;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .option-btn {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .random-btn {
-        background: var(--primary);
-        color: white;
-    }
-
-    .random-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
-    }
-
     .custom-input-group {
         display: flex;
         align-items: center;
         gap: 8px;
-        background: var(--bg-secondary);
+        background: var(--bg-hover);
         border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .custom-input-group:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 1px var(--primary);
     }
 
     .custom-input {
@@ -1010,15 +932,21 @@
         outline: none;
         width: 50%;
         min-width: 0;
+        transition: color 0.2s ease;
+    }
+
+    .custom-input::placeholder {
+        color: var(--text-muted);
     }
 
     .separator {
         color: var(--text-muted);
+        opacity: 0.7;
     }
 
     .domain-select {
         appearance: none;
-        background: var(--bg-hover);
+        background: var(--bg-secondary);
         border: none;
         color: var(--text-primary);
         padding: 8px;
@@ -1027,6 +955,17 @@
         cursor: pointer;
         outline: none;
         min-width: 140px;
+        transition: all 0.2s ease;
+    }
+
+    .domain-select:hover {
+        background: var(--bg-hover);
+    }
+
+    .domain-select option {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        padding: 8px;
     }
 
     .create-btn {
@@ -1041,38 +980,78 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
+        font-weight: 500;
     }
 
     .create-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        background: var(--text-muted);
     }
 
     .create-btn:not(:disabled):hover {
-        transform: scale(1.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
     }
 
-    .divider {
-        position: relative;
-        text-align: center;
-        margin: 8px 0;
-    }
-
-    .divider::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
+    .option-btn {
         width: 100%;
-        height: 1px;
-        background: var(--border-color);
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
     }
 
-    .divider span {
-        background: var(--bg-primary);
-        padding: 0 12px;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        position: relative;
+    .random-btn {
+        background: var(--primary);
+        color: white;
+        border: 1px solid transparent;
+    }
+
+    .random-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+        border-color: rgba(var(--primary-rgb), 0.5);
+    }
+
+    :global([data-theme="dark"]) {
+        .custom-input-group {
+            background: var(--bg-secondary);
+            border-color: var(--border-color);
+        }
+
+        .domain-select {
+            background: var(--bg-tertiary);
+        }
+
+        .domain-select:hover {
+            background: var(--bg-hover);
+        }
+
+        .domain-select option {
+            background: var(--bg-tertiary);
+        }
+
+        .create-btn:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+        }
+
+        .random-btn {
+            background: var(--primary);
+            border-color: transparent;
+        }
+
+        .random-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-dark);
+        }
     }
 </style>
