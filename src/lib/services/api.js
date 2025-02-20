@@ -6,26 +6,21 @@ class ApiService {
         this.lastResetTime = Date.now();
     }
 
-    async checkRateLimit() {
-        console.log('Checking rate limit');
+    async checkRateLimit() { 
         const now = Date.now();
-        if (now - this.lastResetTime >= API_CONFIG.RATE_LIMIT_INTERVAL) {
-            console.log('Resetting rate limit counter');
+        if (now - this.lastResetTime >= API_CONFIG.RATE_LIMIT_INTERVAL) { 
             this.requestCount = 0;
             this.lastResetTime = now;
         }
 
-        this.requestCount++;
-        console.log(`Request count: ${this.requestCount}`);
-        if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) {
-            console.log('Rate limit exceeded');
+        this.requestCount++; 
+        if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) { 
             window.location.href = '/rate-limit';
             throw new Error('Rate limit exceeded');
         }
     }
 
-    async handleRequest(endpoint, options = {}) {
-        console.log('Making request to:', endpoint);
+    async handleRequest(endpoint, options = {}) { 
         await this.checkRateLimit();
 
         try {
@@ -35,11 +30,9 @@ class ApiService {
                     'Content-Type': 'application/json',
                     ...options.headers,
                 },
-            });
-            console.log('Response status:', response.status);
+            }); 
 
-            if (response.status === 429) {
-                console.log('Rate limit response received');
+            if (response.status === 429) { 
                 window.location.href = '/rate-limit';
                 throw new Error('Rate limit exceeded');
             }
@@ -49,8 +42,7 @@ class ApiService {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json();
-            console.log('Response data:', data);
+            const data = await response.json(); 
             return data;
         } catch (error) {
             console.error('API request failed:', error);
@@ -58,29 +50,33 @@ class ApiService {
         }
     }
 
-    async getRandomEmail() {
-        console.log('Getting random email');
+    async getRandomEmail() { 
         try {
-            const response = await this.handleRequest(API_ENDPOINTS.RANDOM_INBOX);
-            console.log('Random email response:', response);
-            if (!response || !response.email) {
-                console.error('Invalid response format:', response);
+            const response = await this.handleRequest(API_ENDPOINTS.RANDOM_INBOX); 
+            if (!response || response.code !== 200) {
                 throw new Error('Invalid response format');
             }
             return response;
-        } catch (error) {
-            console.error('Failed to get random email:', error);
+        } catch (error) { 
             throw error;
         }
     }
 
     async getInboxMessages(email) {
-        return this.handleRequest(API_ENDPOINTS.INBOX_MESSAGES(email));
+        try {
+            const response = await this.handleRequest(API_ENDPOINTS.INBOX_MESSAGES(email));
+            if (response.code !== 200) {
+                throw new Error(response.msg || 'Failed to fetch messages');
+            }
+            return response;
+        } catch (error) {
+            throw error;
+        }
     }
 
-    async getMessage(uid) {
-        return this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
-    }
+    // async getMessage(uid) {
+    //     return this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
+    // }
 
     async deleteMessage(uid) {
         return this.handleRequest(API_ENDPOINTS.DELETE_MESSAGE(uid));
@@ -110,7 +106,16 @@ class ApiService {
     }
 
     async getDomains() {
-        return this.handleRequest(API_ENDPOINTS.DOMAINS);
+        try {
+            const response = await this.handleRequest(API_ENDPOINTS.DOMAINS);
+            if (!response || response.code !== 200) {
+                throw new Error(response.msg || 'Failed to fetch domains');
+            }
+            return response;
+        } catch (error) {
+            console.error('Failed to get domains:', error);
+            throw error;
+        }
     }
 }
 

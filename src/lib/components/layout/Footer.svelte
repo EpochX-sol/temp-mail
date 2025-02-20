@@ -2,16 +2,14 @@
     const currentYear = new Date().getFullYear();
 
     const footerLinks = {
-        product: [
-            { name: 'Features', href: '#features' },
+        product: [ 
             { name: 'Security', href: '#security' },
             { name: 'FAQ', href: '#faq' },
             { name: 'API', href: '/api' }
         ],
         support: [
-            { name: 'Help Center', href: '/help' },
-            { name: 'Contact Us', href: '/contact' },
-            { name: 'Report Abuse', href: '/report' }
+            { name: 'Help Center', href: '#faq' },
+            { name: 'Contact Us', href: '/contact' }, 
         ],
         social: [
             { name: 'Twitter', href: 'https://twitter.com', icon: 'bi-twitter-x' },
@@ -72,12 +70,10 @@
     <div class="footer-bottom">
         <div class="footer-bottom-content">
             <p class="copyright">
-                © {currentYear} Inboxes. All rights reserved.
+                © {currentYear} Temp Email. All rights reserved.
             </p>
             <div class="legal-links">
-                <a href="/privacy">Privacy Policy</a>
-                <span class="separator">•</span>
-                <a href="/terms">Terms of Service</a>
+                <a href="/privacy">Privacy Policy</a> 
             </div>
         </div>
     </div>

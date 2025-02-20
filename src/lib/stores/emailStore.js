@@ -6,38 +6,31 @@ import { API_CONFIG } from '../utils/constants';
 const browser = typeof window !== 'undefined';
 
 function createEmailStore() {
-    const storedEmail = browser ? localStorage.getItem('currentEmail') : null;
     const { subscribe, set, update } = writable({
-        currentEmail: storedEmail,
+        currentEmail: null,
         messages: [],
         loading: false,
-        error: null,
-        lastRefresh: null,
-        isPaused: false
+        error: null
     });
 
     let store;
     subscribe(value => store = value);
 
     async function refreshMessages(force = false) {
-        if (!store.currentEmail || store.loading || store.isPaused) return;
-
-        const now = Date.now();
-        if (!force && store.lastRefresh && now - store.lastRefresh < 10000) {
-            return;
-        }
+        if (!store.currentEmail || store.loading) return;
 
         update(s => ({ ...s, loading: true }));
         try {
             const response = await apiService.getInboxMessages(store.currentEmail);
-            update(s => ({
-                ...s,
-                messages: response.messages,
-                lastRefresh: now,
-                error: null
-            }));
+            if (response.code === 200) {
+                update(s => ({
+                    ...s,
+                    messages: response.messages || [],
+                    error: null
+                }));
+            }
         } catch (error) {
-            update(s => ({ ...s, error: 'Failed to fetch messages' }));
+            update(s => ({ ...s, error: error.message }));
         } finally {
             update(s => ({ ...s, loading: false }));
         }
@@ -45,18 +38,31 @@ function createEmailStore() {
 
     return {
         subscribe,
-        setCurrentEmail: (email) => {
-            if (browser) {
-                localStorage.setItem('currentEmail', email);
+        setCurrentEmail: async (email) => {
+            set({ currentEmail: email, messages: [], loading: true, error: null });
+            try {
+                const response = await apiService.getInboxMessages(email);
+                if (response.code === 200) {
+                    update(s => ({
+                        ...s,
+                        messages: response.messages || [],
+                        loading: false,
+                        error: null
+                    }));
+                }
+            } catch (error) {
+                update(s => ({ ...s, loading: false, error: error.message }));
             }
-            update(state => ({ ...state, currentEmail: email }));
-            refreshMessages(true);
+            storageService.setCurrentEmail(email);
         },
         clearEmail: () => {
             if (browser) {
                 localStorage.removeItem('currentEmail');
             }
-            update(state => ({ ...state, currentEmail: null, messages: [] }));
+            set({ currentEmail: null, messages: [], loading: false, error: null });
+        },
+        getAllEmails: () => {
+            return storageService.getEmails();
         },
         toggleStar: async (uid) => {
             try {
@@ -80,6 +86,7 @@ function createEmailStore() {
                 }));
             } catch (error) {
                 console.error('Failed to delete message:', error);
+                throw error;
             }
         },
         markAsRead: async (uid) => {
@@ -95,6 +102,7 @@ function createEmailStore() {
                 console.error('Failed to mark as read:', error);
             }
         },
+        refreshMessages,
         startPolling: () => {
             const pollInterval = setInterval(() => {
                 if (document.visibilityState === 'visible') {
@@ -103,13 +111,62 @@ function createEmailStore() {
             }, 10000);
 
             document.addEventListener('visibilitychange', () => {
-                update(s => ({ ...s, isPaused: document.visibilityState !== 'visible' }));
                 if (document.visibilityState === 'visible') {
                     refreshMessages(true);
                 }
             });
 
             return () => clearInterval(pollInterval);
+        },
+        bulkDelete: async (uids) => {
+            try {
+                await apiService.bulkDelete(uids);
+                update(state => ({
+                    ...state,
+                    messages: state.messages.filter(msg => !uids.includes(msg.uid))
+                }));
+            } catch (error) {
+                console.error('Failed to bulk delete messages:', error);
+                throw error;
+            }
+        },
+        deleteInbox: async (email) => {
+            try {
+                await apiService.deleteInbox(email);
+                storageService.removeEmail(email);
+                
+                set({
+                    currentEmail: null,
+                    messages: [],
+                    loading: false,
+                    error: null,
+                    lastRefresh: null,
+                    isPaused: false
+                });
+
+                const remainingEmails = storageService.getEmails().filter(e => e !== email);
+                if (remainingEmails.length > 0) {
+                    const nextEmail = remainingEmails[0];
+                    set({ currentEmail: nextEmail, messages: [], loading: true, error: null });
+                    try {
+                        const response = await apiService.getInboxMessages(nextEmail);
+                        if (response.code === 200) {
+                            update(s => ({
+                                ...s,
+                                messages: response.messages || [],
+                                loading: false,
+                                error: null
+                            }));
+                        }
+                    } catch (error) {
+                        update(s => ({ ...s, loading: false, error: error.message }));
+                    }
+                    storageService.setCurrentEmail(nextEmail);
+                }
+            } catch (error) {
+                console.error('Failed to delete inbox:', error);
+                throw error;
+            }
         }
     };
 }

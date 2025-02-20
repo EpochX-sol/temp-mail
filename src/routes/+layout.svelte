@@ -1,3 +1,4 @@
+<!-- @ts-ignore -->
 <script>
     import { onMount } from 'svelte';
     import { themeStore } from '$lib/stores/themeStore';
@@ -10,31 +11,29 @@
     let headerVisible = true;
     let isLoading = true;
 
-    // Initialize theme and email before mounting
-    if (browser) {
-        const storedTheme = localStorage.getItem('theme') || 'light';
-        themeStore.setTheme(storedTheme);
-        document.documentElement.classList.toggle('dark', storedTheme === 'dark');
-        
+    onMount(() => {
+        if (browser) {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+                themeStore.setTheme(storedTheme);
+            }
+            
+            // Set loading to false after theme is applied
+            setTimeout(() => {
+                isLoading = false;
+            }, 0);
+        }
+
         const storedEmail = localStorage.getItem('currentEmail');
         if (storedEmail) {
             emailStore.setCurrentEmail(storedEmail);
         }
-    }
 
-    onMount(() => {
-        if (browser) {
-            // Set loading to false after a brief delay to ensure theme is applied
-            setTimeout(() => {
-                isLoading = false;
-            }, 0);
-
-            window.addEventListener('scroll', () => {
-                const currentScrollY = window.scrollY;
-                headerVisible = lastScrollY > currentScrollY || currentScrollY < 50;
-                lastScrollY = currentScrollY;
-            });
-        }
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            headerVisible = lastScrollY > currentScrollY || currentScrollY < 50;
+            lastScrollY = currentScrollY;
+        });
     });
 </script>
 

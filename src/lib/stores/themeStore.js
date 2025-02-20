@@ -2,22 +2,23 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 function createThemeStore() {
-    const prefersDark = browser && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = browser ? localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light') : 'light';
+    let initialTheme = 'light';
     
-    const { subscribe, set } = writable(initialTheme);
-
     if (browser) {
-        // Set initial theme
+        const userTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        initialTheme = userTheme || (prefersDark ? 'dark' : 'light');
         document.documentElement.classList.toggle('dark', initialTheme === 'dark');
     }
+    
+    const { subscribe, set } = writable(initialTheme);
 
     return {
         subscribe,
         toggleTheme: () => {
             if (!browser) return;
             
-            const currentTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+            const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             localStorage.setItem('theme', newTheme);

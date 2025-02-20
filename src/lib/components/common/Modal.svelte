@@ -1,31 +1,34 @@
 <script>
-    import { createEventDispatcher } from 'svelte';
-    
+    import { fade, scale } from 'svelte/transition';
+    export let show = false;
     export let title = '';
-    export let open = false;
-    
-    const dispatch = createEventDispatcher();
-    
-    function close() {
-        dispatch('close');
+    export let onClose = () => {};
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
     }
 </script>
 
-{#if open}
-    <div class="modal-backdrop" on:click={close}></div>
-    <div class="modal" role="dialog" aria-modal="true">
-        <div class="modal-content">
+{#if show}
+    <div 
+        class="modal-backdrop" 
+        on:click={handleBackdropClick}
+        transition:fade={{ duration: 200 }}
+    >
+        <div 
+            class="modal-content"
+            transition:scale={{ duration: 200, start: 0.95 }}
+        >
             <div class="modal-header">
                 <h2>{title}</h2>
-                <button class="close-btn" on:click={close}>
-                    <i class="bi bi-x"></i>
+                <button class="close-btn" on:click={onClose}>
+                    <i class="bi bi-x-lg"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <slot />
-            </div>
-            <div class="modal-footer">
-                <slot name="footer" />
             </div>
         </div>
     </div>
@@ -39,57 +42,56 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         z-index: 1000;
     }
 
-    .modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: var(--kt-body-bg);
-        border-radius: 8px;
-        z-index: 1001;
-        width: 90%;
-        max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
     .modal-content {
-        padding: 1.5rem;
+        background: var(--bg-primary);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 700px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
     }
 
     .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
+        justify-content: space-between;
     }
 
     .modal-header h2 {
         margin: 0;
         font-size: 1.25rem;
-        color: var(--kt-text-primary);
+        font-weight: 500;
+        color: var(--text-primary);
     }
 
     .close-btn {
         background: none;
         border: none;
-        font-size: 1.5rem;
+        color: var(--text-muted);
         cursor: pointer;
-        color: var(--kt-text-muted);
-        padding: 0.25rem;
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
     }
 
     .close-btn:hover {
-        color: var(--kt-text-primary);
+        background: var(--bg-hover);
+        color: var(--text-primary);
     }
 
-    .modal-footer {
-        margin-top: 1.5rem;
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
+    .modal-body {
+        padding: 24px;
     }
 </style> 
