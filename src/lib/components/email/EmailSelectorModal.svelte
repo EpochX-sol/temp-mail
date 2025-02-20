@@ -6,8 +6,14 @@
     export let show = false;
     export let onClose = () => {};
 
-    $: emails = storageService.getEmails();
-    $: currentEmail = $emailStore.currentEmail; 
+    let emails = [];
+    $: currentEmail = $emailStore.currentEmail;
+
+    $: if (show) {
+        // Refresh emails list whenever modal is opened
+        emails = storageService.getEmails();
+    }
+
     function handleEmailSelect(email) {
         emailStore.setCurrentEmail(email);
         onClose();
@@ -16,22 +22,29 @@
 
 <Modal {show} title="Select Email" {onClose}> 
     <div class="email-list">
-        {#each emails as email}
-            <button 
-                class="email-item" 
-                class:active={email === currentEmail}
-                on:click={() => handleEmailSelect(email)}
-            >
-                <div class="email-info">
-                    <i class="bi bi-envelope"></i>
-                    <span class="email-address">{email}</span>
-                    {#if email === currentEmail}
-                        <span class="active-badge">Active</span>
-                    {/if}
-                </div>
-                <i class="bi bi-check-lg check-icon"></i>
-            </button>
-        {/each}
+        {#if emails.length === 0}
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No emails found</p>
+            </div>
+        {:else}
+            {#each emails as email}
+                <button 
+                    class="email-item" 
+                    class:active={email === currentEmail}
+                    on:click={() => handleEmailSelect(email)}
+                >
+                    <div class="email-info">
+                        <i class="bi bi-envelope"></i>
+                        <span class="email-address">{email}</span>
+                        {#if email === currentEmail}
+                            <span class="active-badge">Active</span>
+                        {/if}
+                    </div>
+                    <i class="bi bi-check-lg check-icon"></i>
+                </button>
+            {/each}
+        {/if}
     </div>
 </Modal>
 
@@ -108,5 +121,23 @@
         font-size: 0.95rem;
         margin-bottom: 24px;
         text-align: center;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 32px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 2rem;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.95rem;
     }
 </style> 
