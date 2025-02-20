@@ -7,16 +7,14 @@
     export let onClose = () => {};
 
     $: emails = storageService.getEmails();
-    $: currentEmail = $emailStore.currentEmail;
-
+    $: currentEmail = $emailStore.currentEmail; 
     function handleEmailSelect(email) {
         emailStore.setCurrentEmail(email);
         onClose();
     }
 </script>
 
-<Modal {show} title="Select Email" {onClose}>
-    <p class="modal-description">Choose an email address to use</p>
+<Modal {show} title="Select Email" {onClose}> 
     <div class="email-list">
         {#each emails as email}
             <button 
