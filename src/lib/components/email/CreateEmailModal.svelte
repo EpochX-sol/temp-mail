@@ -273,8 +273,7 @@
         padding: 8px;
         border: 1px solid var(--border-color);
         border-radius: 4px;
-        font-size: 0.95rem;
-        background: var(--bg-primary);
+        font-size: 0.95rem; 
         color: var(--text-primary);
         min-width: 0;
     }
@@ -437,9 +436,7 @@
     }
 
  
-    :global([data-theme="dark"]) .custom-option {
-        background: var(--bg-tertiary);
-    }
+    
 
     :global([data-theme="dark"]) .domain-options {
         background: var(--bg-tertiary);
