@@ -1,63 +1,30 @@
 <script>
-    const features = [
-        {
-            icon: "bi-shield-check",
-            title: "Privacy First",
-            description: "We prioritize your privacy with end-to-end encryption and a zero-log policy."
-        },
-        {
-            icon: "bi-lightning",
-            title: "Lightning Fast",
-            description: "Instant email generation and real-time message delivery."
-        },
-        {
-            icon: "bi-gear",
-            title: "Advanced Features",
-            description: "Custom domains, API access, and enterprise solutions."
-        },
-        {
-            icon: "bi-person-check",
-            title: "User-Centric Design",
-            description: "Intuitive interface designed for seamless user experience."
-        }
-    ];
-
-    const testimonials = [
-        {
-            name: "Emily Carter",
-            feedback: "Temp email has transformed the way I manage my emails. I feel secure and in control!"
-        },
-        {
-            name: "Michael Brown",
-            feedback: "The service is incredibly fast and reliable. I love the privacy features!"
-        },
-        {
-            name: "Sarah Johnson",
-            feedback: "Finally, a solution that respects my privacy. Highly recommend Temp email!"
-        }
-    ];
+    import { ABOUT_PAGE_CONFIG } from '$lib/utils/constants';
+    import SEO from '$lib/components/common/SEO.svelte';
 </script>
+
+<SEO page="ABOUT" />
 
 <div class="about-page">
     <header class="about-header">
         <div class="header-content">
-            <h1>About Temp Emails</h1>
-            <p class="mission">Protecting your privacy in the digital age.</p>
+            <h1>{ABOUT_PAGE_CONFIG.HEADER.TITLE}</h1>
+            <p class="mission">{ABOUT_PAGE_CONFIG.HEADER.MISSION}</p>
         </div>
     </header>
 
     <main class="about-content">
         <section class="story-section">
-            <h2>Our Story</h2>
-            <p>Temp mail emerged from a vision to empower individuals with the tools they need to protect their privacy online. In a world where personal information is often exploited, we believe that everyone deserves a safe space to communicate without fear of surveillance or data breaches.</p>
-            <p>Our journey began with a simple idea: to create a temporary email service that not only provides anonymity but also ensures that users have complete control over their digital footprint. We understand the challenges of navigating the online landscape, and our mission is to simplify that experience while prioritizing user privacy.</p>
-            <p>At Inboxes, we are committed to innovation and excellence. Our team of dedicated professionals works tirelessly to enhance our platform, ensuring that it remains user-friendly, secure, and efficient. We envision a future where privacy is a fundamental right, and we are proud to lead the charge in making that a reality.</p>
+            <h2>{ABOUT_PAGE_CONFIG.STORY.TITLE}</h2>
+            {#each ABOUT_PAGE_CONFIG.STORY.PARAGRAPHS as paragraph}
+                <p>{paragraph}</p>
+            {/each}
         </section>
 
         <section class="values-section">
             <h2>Our Values</h2>
             <div class="values-grid">
-                {#each features as feature}
+                {#each ABOUT_PAGE_CONFIG.FEATURES as feature}
                     <div class="value-card">
                         <i class="bi {feature.icon}"></i>
                         <h3>{feature.title}</h3>
@@ -70,7 +37,7 @@
         <section class="testimonials-section">
             <h2>User Testimonials</h2>
             <div class="testimonials-grid">
-                {#each testimonials as testimonial}
+                {#each ABOUT_PAGE_CONFIG.TESTIMONIALS as testimonial}
                     <div class="testimonial-card">
                         <p>"{testimonial.feedback}"</p>
                         <p class="testimonial-name">- {testimonial.name}</p>
@@ -94,25 +61,32 @@
     .about-page {
         min-height: 100vh;
         background: var(--bg-page);
-        font-family: 'Arial', sans-serif;
-        color: var(--text-primary);  
+        font-family: var(--font-family);
+        color: var(--text-primary);
     }
 
     .about-header {
-        background: var(--bg-primary); 
-        padding-top: 40px;
-        text-align: center; 
+        padding: 60px 20px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .header-content {
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .header-content h1 {
         font-size: 2.5rem;
         margin: 0;
-        color: var(--highlight-color);
+        color: var(--text-primary);
+        font-weight: 600;
     }
 
     .mission {
-        font-size: 1.2rem;
         color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin-top: 12px;
     }
 
     .about-content {
@@ -126,14 +100,15 @@
     }
 
     h2 {
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--border-color);
         font-size: 2rem;
-        color: var(--highlight-color);
         margin-bottom: 20px;
-        border-bottom: 2px solid var(--highlight-color);
         padding-bottom: 10px;
     }
 
-    p {
+    .story-section p {
+        color: var(--text-secondary);
         line-height: 1.6;
         margin-bottom: 20px;
     }
@@ -151,29 +126,29 @@
         padding: 20px;
         text-align: center;
         transition: transform 0.2s;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-sm);
     }
 
     .value-card:hover, .testimonial-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: var(--shadow-md);
     }
 
     .value-card i {
+        color: var(--icon-color);
         font-size: 2rem;
-        color: var(--highlight-color);
         margin-bottom: 10px;
     }
 
     .testimonial-card p {
-        font-style: italic;
         color: var(--text-secondary);
+        font-style: italic;
     }
 
     .testimonial-name {
+        color: var(--text-primary);
         font-weight: bold;
         margin-top: 10px;
-        color: var(--text-primary);
     }
 
     @media (max-width: 768px) {

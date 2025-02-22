@@ -36,6 +36,27 @@ function createEmailStore() {
         }
     }
 
+    async function toggleStar(uid) {
+        try {
+            const response = await apiService.toggleStar(uid);
+            if (response.success) {
+                update(state => {
+                    const messages = state.messages.map(msg => {
+                        if (msg.uid === uid) {
+                            return { ...msg, is_starred: !msg.is_starred };
+                        }
+                        return msg;
+                    });
+                    return { ...state, messages };
+                });
+            }
+            return response;
+        } catch (error) {
+            console.error('Failed to toggle star:', error);
+            throw error;
+        }
+    }
+
     return {
         subscribe,
         setCurrentEmail: async (email) => {
@@ -64,19 +85,7 @@ function createEmailStore() {
         getAllEmails: () => {
             return storageService.getEmails();
         },
-        toggleStar: async (uid) => {
-            try {
-                await apiService.toggleStar(uid);
-                update(state => ({
-                    ...state,
-                    messages: state.messages.map(msg => 
-                        msg.uid === uid ? { ...msg, is_starred: !msg.is_starred } : msg
-                    )
-                }));
-            } catch (error) {
-                console.error('Failed to toggle star:', error);
-            }
-        },
+        toggleStar,
         deleteMessage: async (uid) => {
             try {
                 await apiService.deleteMessage(uid);

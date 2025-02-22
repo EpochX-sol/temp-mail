@@ -1,80 +1,71 @@
 <script>
-    const currentYear = new Date().getFullYear();
+    import { FOOTER_CONFIG } from '$lib/utils/constants'; 
 
-    const footerLinks = {
-        product: [ 
-            { name: 'Security', href: '#security' },
-            { name: 'FAQ', href: '#faq' },
-            { name: 'API', href: '/api' }
-        ],
-        support: [
-            { name: 'Help Center', href: '#faq' },
-            { name: 'Contact Us', href: '/contact' }, 
-        ],
-        social: [
-            { name: 'Twitter', href: 'https://twitter.com', icon: 'bi-twitter-x' },
-            { name: 'GitHub', href: 'https://github.com', icon: 'bi-github' },
-            { name: 'Discord', href: 'https://discord.com', icon: 'bi-discord' },
-        ]
-    };
+    const currentYear = new Date().getFullYear();
 </script>
 
 <footer class="footer">
-    <div class="footer-content">
-        <div class="footer-main">
-            <div class="logo">
-                <i class="bi bi-envelope-paper-fill"></i>
-                <span>Temp Mail</span>
-            </div>
-            <p class="tagline">
-                Secure, instant temporary email service for your privacy needs.
-            </p>
-        </div>
-
-        <div class="footer-links">
-            <div class="link-group">
-                <h3>Product</h3>
-                <ul>
-                    {#each footerLinks.product as link}
-                        <li>
-                            <a href={link.href}>{link.name}</a>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-
-            <div class="link-group">
-                <h3>Support</h3>
-                <ul>
-                    {#each footerLinks.support as link}
-                        <li>
-                            <a href={link.href}>{link.name}</a>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-
-            <div class="link-group">
-                <h3>Connect</h3>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <i class="bi bi-envelope-paper-fill"></i>
+                    <span>Temp Mail</span>
+                </a>
+                <p class="footer-description">
+                    Your privacy is our priority. We provide temporary email services to keep you safe from spam.
+                </p>
                 <div class="social-links">
-                    {#each footerLinks.social as link}
-                        <a href={link.href} target="_blank" rel="noopener noreferrer" class="social-link">
+                    {#each FOOTER_CONFIG.social as link}
+                        <a 
+                            href={link.href} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            class="social-link"
+                            aria-label={`Follow us on ${link.name}`}
+                        >
                             <i class="bi {link.icon}"></i>
                         </a>
                     {/each}
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="footer-bottom">
-        <div class="footer-bottom-content">
+            <div class="footer-links">
+                <div class="link-group">
+                    <h3>Product</h3>
+                    <ul>
+                        {#each FOOTER_CONFIG.product as link}
+                            <li>
+                                <a href={link.href}>{link.name}</a>
+                            </li>
+                        {/each}
+                    </ul>
+                </div>
+
+                <div class="link-group">
+                    <h3>Support</h3>
+                    <ul>
+                        {#each FOOTER_CONFIG.support as link}
+                            <li>
+                                <a href={link.href}>{link.name}</a>
+                            </li>
+                        {/each}
+                    </ul>
+                </div>
+
+                <div class="link-group">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="/privacy">Privacy Policy</a></li> 
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
             <p class="copyright">
                 © {currentYear} Temp Email. All rights reserved.
             </p>
-            <div class="legal-links">
-                <a href="/privacy">Privacy Policy</a> 
-            </div>
         </div>
     </div>
 </footer>
@@ -82,100 +73,66 @@
 <style>
     .footer {
         background: var(--bg-primary);
+        color: var(--text-secondary);
+        padding: 40px 0;
         border-top: 1px solid var(--border-color);
-        padding-top: 48px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
     }
 
     .footer-content {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 48px;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
     }
 
-    .footer-main {
-        flex: 1;
-        min-width: 300px;
+    .footer-brand {
         display: flex;
         flex-direction: column;
-        gap: 24px;
     }
 
     .logo {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 1.5rem;
-        font-weight: 700;
+        gap: 10px;
+        font-size: 1.2rem;
+        font-weight: 600;
         color: var(--text-primary);
+        text-decoration: none;
+        margin-bottom: 15px;
     }
 
     .logo i {
         color: var(--primary);
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
 
-    .tagline {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
+    .footer-description {
+        font-size: 0.9rem;
         line-height: 1.6;
-        margin: 0;
-    }
-
-    .footer-links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 64px;
-    }
-
-    .link-group {
-        min-width: 160px;
-    }
-
-    .link-group h3 {
-        color: var(--text-primary);
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0 0 24px;
-    }
-
-    .link-group ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .link-group a {
-        color: var(--text-secondary);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-
-    .link-group a:hover {
-        color: var(--primary);
+        margin-bottom: 20px;
     }
 
     .social-links {
         display: flex;
-        gap: 12px;
-        margin-top: 8px;
+        gap: 10px;
     }
 
     .social-link {
-        width: 36px;
-        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
         background: var(--bg-secondary);
         color: var(--text-secondary);
         transition: all 0.2s ease;
+        font-size: 1rem;
     }
 
     .social-link:hover {
@@ -184,62 +141,119 @@
         transform: translateY(-2px);
     }
 
-    .footer-bottom {
-        margin-top: 48px;
-        border-top: 1px solid var(--border-color);
-        padding: 24px 0;
+    .footer-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
     }
 
-    .footer-bottom-content {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .link-group h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 15px;
     }
 
-    .copyright {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
+    .link-group ul {
+        list-style: none;
+        padding: 0;
         margin: 0;
     }
 
-    .legal-links {
-        display: flex;
-        align-items: center;
-        gap: 16px;
+    .link-group li {
+        margin-bottom: 8px;
     }
 
-    .legal-links a {
+    .link-group a {
         color: var(--text-secondary);
         text-decoration: none;
         font-size: 0.9rem;
         transition: color 0.2s ease;
+        display: block;
     }
 
-    .legal-links a:hover {
+    .link-group a:hover {
         color: var(--primary);
     }
 
-    .separator {
-        color: var(--text-muted);
+    .footer-bottom {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+    }
+
+    .copyright {
+        font-size: 0.8rem;
     }
 
     @media (max-width: 768px) {
+        .footer {
+            padding: 20px 0;
+        }
+
+        .container {
+            padding: 0 10px;
+        }
+
         .footer-content {
-            flex-direction: column;
-            gap: 40px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .footer-brand {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .logo i {
+            font-size: 1.2rem;
+        }
+
+        .footer-description {
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        .social-links {
+            gap: 5px;
+        }
+
+        .social-link {
+            width: 28px;
+            height: 28px;
+            font-size: 0.9rem;
         }
 
         .footer-links {
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
         }
 
-        .footer-bottom-content {
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
+        .link-group h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .link-group li {
+            margin-bottom: 5px;
+        }
+
+        .link-group a {
+            font-size: 0.8rem;
+        }
+
+        .footer-bottom {
+            margin-top: 20px;
+            padding-top: 10px;
+        }
+
+        .copyright {
+            font-size: 0.7rem;
         }
     }
-</style> 
+</style>

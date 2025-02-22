@@ -1,5 +1,3 @@
-<!-- @ts-ignore -->
-
 <script>
     import { onMount } from 'svelte'; 
     import MessageList from '$lib/components/email/MessageList.svelte';
@@ -12,38 +10,24 @@
     import { UI_CONFIG } from '$lib/utils/constants';
     import Modal from '$lib/components/common/Modal.svelte';
     import EmailSelectorModal from '$lib/components/email/EmailSelectorModal.svelte';
+    import SEO from '$lib/components/common/SEO.svelte';
+    import EmailManager from '$lib/components/email/EmailManager.svelte';
+    import Stats from '$lib/components/common/Stats.svelte';
+    import CreateEmailModal from '$lib/components/email/CreateEmailModal.svelte';
+    import Button from '$lib/components/common/Button.svelte';
 
     let hasEmail = false;
     let loading = false;
     let emailCount = 0;
-    let generatedEmail = '';
     let storedEmail = '';
-    let isCopied = false;
-    let iterationCount = 0;
-    const maxIterations = UI_CONFIG.ANIMATION.MAX_ITERATIONS;
-    let iterationInterval;
-    let restartTimeout;
     let selectedMessage = null;
-    let showAddInboxModal = false;
     let showEmailSelectorModal = false;
     let showDeleteConfirmModal = false;
     let emailToDelete = '';
     let customUsername = '';
     let availableDomains = [];
     let selectedDomain = '';
-
-    const randomDomains = () => {
-        return '@ultrambox.com';
-    };
-
-    const generateRandomString = () => {
-        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < 8; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    };
+    let showCreateEmailModal = false;
 
     onMount(async () => {
         const emails = storageService.getEmails();
@@ -53,7 +37,6 @@
             emailStore.setCurrentEmail(currentEmail);
             storedEmail = currentEmail;
         }
-        startEmailAnimation();
         
         try {
             const domains = await apiService.getDomains();
@@ -64,60 +47,7 @@
         } catch (error) {
             console.error('Failed to fetch domains:', error);
         }
-        
-        return () => {
-            clearInterval(iterationInterval);
-            clearTimeout(restartTimeout);
-        };
     });
-
-    function startEmailAnimation() {
-        iterationCount = 0;
-        clearInterval(iterationInterval);
-        clearTimeout(restartTimeout);
-        
-        iterationInterval = setInterval(() => {
-            if (iterationCount >= maxIterations) {
-                clearInterval(iterationInterval);
-                restartTimeout = setTimeout(() => {
-                    if (!hasEmail) {
-                        startEmailAnimation();
-                    }
-                }, 3000);
-                return;
-            }
-            generatedEmail = generateRandomString() + randomDomains();
-            iterationCount++;
-        }, 50);
-    }
-
-    async function handleGetEmail() {
-        loading = true;
-        try {
-            const response = await apiService.getRandomEmail();
-            if (response.code === 200 && response.email) {
-                const newEmail = response.email;
-                emailStore.setCurrentEmail(newEmail);
-                storedEmail = newEmail;
-                hasEmail = true;
-                storageService.addEmail(newEmail);
-                showAddInboxModal = false;
-            } else {
-                throw new Error('Failed to generate email');
-            }
-        } catch (error) {
-            console.error('Failed to get email:', error);
-        } finally {
-            loading = false;
-        }
-    }
-
-    function copyEmail() {
-        navigator.clipboard.writeText(displayEmail).then(() => {
-            isCopied = true;
-            setTimeout(() => isCopied = false, UI_CONFIG.ANIMATION.COPY_FEEDBACK_DURATION);
-        });
-    }
 
     function handleMessageSelect(event) {
         selectedMessage = event.detail;
@@ -127,7 +57,7 @@
         selectedMessage = null;
     }
 
-    $: displayEmail = hasEmail ? storedEmail : generatedEmail;
+    $: displayEmail = hasEmail ? storedEmail : '';
 
     $: {
         if ($emailStore.currentEmail) {
@@ -143,7 +73,6 @@
                 hasEmail = false;
                 storedEmail = '';
                 selectedMessage = null;
-                startEmailAnimation();
             } catch (error) {
                 console.error('Failed to delete inbox:', error);
             }
@@ -160,7 +89,7 @@
     }
 
     function handleAddInbox() {
-        showAddInboxModal = true;
+        showCreateEmailModal = true;
     }
 
     function handleYourInbox() {
@@ -181,7 +110,6 @@
                 hasEmail = false;
                 storedEmail = '';
                 selectedMessage = null;
-                startEmailAnimation();
             } else {
                 storedEmail = remainingEmails[0];
                 hasEmail = true;
@@ -191,22 +119,37 @@
         }
     }
 
-    async function handleCustomEmail() {
-        if (!customUsername || !selectedDomain) return;
-        
-        const email = customUsername + '@' + selectedDomain;
+    async function handleRandomEmail() {
         try {
-            emailStore.setCurrentEmail(email);
-            storedEmail = email;
-            hasEmail = true;
-            storageService.addEmail(email);
-            showAddInboxModal = false;
-            customUsername = ''; // Reset input
+            const response = await apiService.getRandomEmail();
+            if (response.code === 200 && response.email) {
+                await emailStore.setCurrentEmail(response.email);
+                storageService.addEmail(response.email);
+                hasEmail = true;
+            }
         } catch (error) {
-            console.error('Failed to add custom email:', error);
+            console.error('Failed to create random email:', error);
+            throw error;
         }
     }
+
+    async function handleCustomEmail(email) {
+        try {
+            await emailStore.setCurrentEmail(email);
+            storageService.addEmail(email);
+            hasEmail = true;
+        } catch (error) {
+            console.error('Failed to create custom email:', error);
+            throw error;
+        }
+    }
+
+    function handleAddEmail() {
+        showCreateEmailModal = true;
+    }
 </script>
+
+<SEO page="HOME" />
 
 <div class="page-container">
     <header class="header-section {hasEmail ? 'compact' : ''}">
@@ -219,63 +162,28 @@
                         Protect Your Privacy, Stay Anonymous
                     {/if}
                 </h1>
-                {#if hasEmail}
-                    <h2 class="dynamic-email">
-                        <span class="email-display">{storedEmail}</span>
-                        <button 
-                            class="copy-button" 
-                            on:click={copyEmail}
-                            aria-label="Copy email address"
-                        >
-                            {#if isCopied}
-                                <i class="bi bi-check-circle-fill"></i>
-                            {:else}
-                                <i class="bi bi-clipboard"></i>
-                            {/if}
-                        </button>
-                    </h2>
-                    <div class="action-buttons">
-                        <button class="action-btn primary" on:click={handleAddInbox}>
-                            <i class="bi bi-plus-circle"></i>
-                            Add Email
-                        </button>
-                        <button class="action-btn danger" on:click={() => handleDeleteInboxClick(storedEmail)}>
-                            <i class="bi bi-trash"></i>
-                            Delete Email
-                        </button>
-                        <button class="action-btn" on:click={handleYourInbox}>
-                            <i class="bi bi-list"></i>
-                            Your Emails
-                        </button>
-                    </div>
-                {:else if generatedEmail}
-                    <h2 class="dynamic-email preview">
-                        <span class="email-display {iterationCount >= maxIterations ? 'final' : 'animating'}">{generatedEmail}</span>
-                    </h2>
-                {/if}
+                
+                <EmailManager 
+                    {hasEmail}
+                    {storedEmail}
+                    {loading}
+                    on:addInbox={() => showCreateEmailModal = true}
+                    on:deleteInbox={({ detail }) => handleDeleteInboxClick(detail.email)}
+                    on:showEmails={() => showEmailSelectorModal = true}
+                    on:addEmail={handleAddEmail}
+                />
+
                 {#if !hasEmail}
-                    <div class="stats-container">
-                        <div class="stat-item">
-                            <i class="bi bi-envelope"></i>
-                            <span>{emailCount}+ Emails Generated</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="bi bi-lightning"></i>
-                            <span>Instant Delivery</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="bi bi-shield-lock"></i>
-                            <span>100% Secure</span>
-                        </div>
-                    </div>
-                    
-                    <button class="cta-button" on:click={handleGetEmail} disabled={loading}>
-                        {#if loading}
-                            <i class="bi bi-arrow-clockwise spinning"></i>
-                        {:else}
-                            Get Your Email <i class="bi bi-arrow-right"></i>
-                        {/if}
-                    </button>
+                    <Stats {emailCount} />
+                    <Button 
+                        variant="primary"
+                        size="lg"
+                        icon="bi-arrow-right"
+                        on:click={() => showCreateEmailModal = true}
+                        {loading}
+                    >
+                        Get Your Email
+                    </Button>
                 {/if}
             </div>
         </div>
@@ -299,47 +207,13 @@
     <FAQ /> 
 </div>
 
-<Modal
-    show={showAddInboxModal}
-    title="Create New Email"
-    onClose={() => showAddInboxModal = false}
->
-    <div class="add-inbox-content">
-        <div class="email-creation-options">
-            <button class="option-btn random-btn" on:click={handleGetEmail}>
-                <i class="bi bi-shuffle"></i>
-                <span>Generate Random</span>
-            </button>
-
-            <div class="divider">
-                <span>or</span>
-            </div>
-
-            <div class="custom-input-group">
-                <input 
-                    type="text" 
-                    bind:value={customUsername}
-                    placeholder="Enter username"
-                    class="custom-input"
-                >
-                <span class="separator">@</span>
-                <select bind:value={selectedDomain} class="domain-select">
-                    {#each availableDomains as domain}
-                        <option value={domain}>{domain}</option>
-                    {/each}
-                </select> 
-                
-                <button 
-                    class="create-btn" 
-                    on:click={handleCustomEmail}
-                    disabled={!customUsername || !selectedDomain}
-                >
-                    Create
-                </button>
-            </div>
-        </div>
-    </div>
-</Modal>
+<CreateEmailModal
+    show={showCreateEmailModal}
+    onClose={() => showCreateEmailModal = false}
+    {availableDomains}
+    onRandomEmail={handleRandomEmail}
+    onCustomEmail={handleCustomEmail}
+/>
 
 <EmailSelectorModal
     show={showEmailSelectorModal}
@@ -347,20 +221,28 @@
 />
 
 <Modal
-    show={showDeleteConfirmModal}
-    title="Delete Inbox"
+    show={showDeleteConfirmModal} 
     onClose={() => showDeleteConfirmModal = false}
 >
     <div class="delete-confirm-content">
-        <p>Are you sure you want to delete this inbox?</p>
-        <p class="delete-email">{emailToDelete}</p>
-        <div class="modal-buttons">
-            <button class="modal-btn" on:click={() => showDeleteConfirmModal = false}>
+         
+        <h3>Are you sure you want to delete this email account?</h3>
+        <div class="modal-actions">
+            <Button 
+                variant="secondary"
+                size="sm"
+                on:click={() => showDeleteConfirmModal = false}
+            >
                 Cancel
-            </button>
-            <button class="modal-btn danger" on:click={confirmDeleteInbox}>
-                Delete
-            </button>
+            </Button>
+            <Button 
+                variant="danger"
+                size="sm"
+                icon="bi-trash"
+                on:click={confirmDeleteInbox}
+            >
+                Delete Email
+            </Button>
         </div>
     </div>
 </Modal>
@@ -454,40 +336,6 @@
         color: rgba(255, 255, 255, 0.8);
         font-size: 1.1rem;
         margin: 1rem 0 2rem;
-    }
-
-    .cta-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 16px 32px;
-        font-size: 1.1rem;
-        font-weight: 500;
-        color: white;
-        background: #2563eb;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .cta-button:hover {
-        background: #1d4ed8;
-        transform: translateY(-2px);
-    }
-
-    .cta-button:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
-
-    .spinning {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
     }
 
     .main-container {
@@ -719,7 +567,10 @@
         .header-content {
             padding: 0 16px;
         }
+        .main-container{
+        top: -10px;
 
+        }
         .hero-content {
             max-width: 100%;
         }
@@ -788,7 +639,7 @@
         }
 
         .dynamic-email.preview .email-display {
-            font-size: 0.7rem;
+            font-size: 1rem;
         }
         .message-list-wrapper {
             max-width: 100%;
@@ -838,6 +689,7 @@
 
         .main-container {
             padding: 0 8px;
+            top: -30px;
         }
 
         .dynamic-email.preview {
@@ -846,7 +698,7 @@
         }
 
         .dynamic-email.preview .email-display {
-            font-size: 0.5rem;
+            font-size: 1rem;
         }
         .header-section.compact .email-display {
         font-size: 1rem;
@@ -1054,4 +906,43 @@
             background: var(--primary-dark);
         }
     }
+
+    .delete-confirm-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    .warning-icon {
+        font-size: 2.5rem;
+        color: #dc3545;
+        margin-bottom: 1rem;
+    }
+ 
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .delete-confirm-content {
+            padding: 0.5rem;
+        }
+
+        .warning-icon {
+            font-size: 2rem;
+        }
+
+        
+    }
+ 
+    :global([data-theme="dark"]) .email-display {
+        background: var(--bg-tertiary);
+    }
+ 
 </style>

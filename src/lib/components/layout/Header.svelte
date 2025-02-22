@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import { slide } from 'svelte/transition';
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
 
     let isMenuOpen = false;
 
@@ -29,12 +30,23 @@
         };
     });
 
-    function scrollToFaq(e) {
+    async function scrollToFaq(e) {
         e.preventDefault();
-        const faqSection = document.getElementById('faq');
-        if (faqSection) {
-            faqSection.scrollIntoView({ behavior: 'smooth' });
-            closeMenu();
+        closeMenu();
+ 
+        if (currentPath !== '/') {
+            await goto('/'); 
+            setTimeout(() => {
+                const faqSection = document.getElementById('faq');
+                if (faqSection) {
+                    faqSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        } else { 
+            const faqSection = document.getElementById('faq');
+            if (faqSection) {
+                faqSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     }
 

@@ -1,4 +1,8 @@
 <script>
+    import { CONTACT_PAGE_CONFIG } from '$lib/utils/constants';
+    import SEO from '$lib/components/common/SEO.svelte';
+    import Button from '$lib/components/common/Button.svelte';
+
     let formData = {
         name: '',
         email: '',
@@ -7,21 +11,17 @@
     };
 
     let isSubmitting = false;
-    let submissionResult = null; // 'success' or 'error'
+    let submissionResult = null;
 
     async function handleSubmit(e) {
         e.preventDefault();
         isSubmitting = true;
-        submissionResult = null; // Reset result
-
-        // Simulate form submission (replace with actual API call)
-        await new Promise(resolve => setTimeout(resolve, 2000)); // 2 seconds delay
-
+        submissionResult = null;
+        await new Promise(resolve => setTimeout(resolve, 2000));
         try {
-            // Simulate success
             if (formData.name && formData.email && formData.subject && formData.message) {
                 submissionResult = 'success';
-                formData = { name: '', email: '', subject: '', message: '' }; // Clear form
+                formData = { name: '', email: '', subject: '', message: '' };
             } else {
                 submissionResult = 'error';
             }
@@ -34,11 +34,13 @@
     }
 </script>
 
+<SEO page="CONTACT" />
+
 <div class="contact-page">
     <header class="contact-header">
         <div class="header-content">
-            <h1>Contact Us</h1>
-            <p class="subtitle">We're here to help</p>
+            <h1>{CONTACT_PAGE_CONFIG.HEADER.TITLE}</h1>
+            <p class="subtitle">{CONTACT_PAGE_CONFIG.HEADER.SUBTITLE}</p>
         </div>
     </header>
 
@@ -46,75 +48,61 @@
         <div class="content-wrapper">
             <div class="contact-grid">
                 <div class="contact-info">
-                    <div class="info-card">
-                        <i class="bi bi-envelope"></i>
-                        <h3>Email Us</h3>
-                        <p><a href="mailto:support@inboxes.com">support@gmail.com</a></p>
-                    </div> 
-                    <div class="info-card">
-                        <i class="bi bi-question-circle"></i>
-                        <h3>FAQ</h3>
-                        <p>Check our <a href="/">help center</a></p>
-                    </div>
+                    {#each CONTACT_PAGE_CONFIG.CONTACT_INFO as info}
+                        <div class="info-card">
+                            <i class="bi {info.icon}"></i>
+                            <h3>{info.title}</h3>
+                            {#if info.type === 'email' || info.type === 'phone'}
+                                <p><a href={info.link}>{info.content}</a></p>
+                            {:else}
+                                <p>{info.content}</p>
+                            {/if}
+                        </div>
+                    {/each}
                 </div>
 
                 <form class="contact-form" on:submit={handleSubmit}>
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input
-                            type="text"
-                            id="name"
-                            bind:value={formData.name}
-                            required
-                            placeholder="Your Name"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            bind:value={formData.email}
-                            required
-                            placeholder="Your Email"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="subject">Subject</label>
-                        <input
-                            type="text"
-                            id="subject"
-                            bind:value={formData.subject}
-                            placeholder="Subject"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea
-                            id="message"
-                            bind:value={formData.message}
-                            rows="5"
-                            required
-                            placeholder="Your Message"
-                        ></textarea>
-                    </div>
-                    <button type="submit" class="submit-btn" disabled={isSubmitting}>
-                        {#if isSubmitting}
-                            <span class="spinner"></span> Sending...
-                        {:else}
-                            Send Message
-                        {/if}
-                    </button>
+                    {#each Object.entries(CONTACT_PAGE_CONFIG.FORM.FIELDS) as [field, config]}
+                        <div class="form-group">
+                            <label for={field.toLowerCase()}>{config.label}</label>
+                            {#if field === 'MESSAGE'}
+                                <textarea
+                                    id={field.toLowerCase()}
+                                    bind:value={formData[field.toLowerCase()]}
+                                    required
+                                    placeholder={config.placeholder}
+                                ></textarea>
+                            {:else}
+                                <input
+                                    type={field === 'EMAIL' ? 'email' : 'text'}
+                                    id={field.toLowerCase()}
+                                    bind:value={formData[field.toLowerCase()]}
+                                    required
+                                    placeholder={config.placeholder}
+                                />
+                            {/if}
+                        </div>
+                    {/each}
+                    <Button 
+                        variant="info"
+                        icon="bi-envelope-paper"
+                        type="submit"
+                        loading={isSubmitting}
+                        disabled={isSubmitting}
+                        fullWidth
+                    >
+                        {CONTACT_PAGE_CONFIG.FORM.SUBMIT.text}
+                    </Button>
 
                     {#if submissionResult === 'success'}
                         <div class="success-message">
-                            Thank you! Your message has been sent.
+                            <i class="bi bi-check-circle"></i> {CONTACT_PAGE_CONFIG.FORM.MESSAGES.SUCCESS}
                         </div>
                     {/if}
 
                     {#if submissionResult === 'error'}
                         <div class="error-message">
-                            Oops! There was an error sending your message. Please try again.
+                            <i class="bi bi-exclamation-circle"></i> {CONTACT_PAGE_CONFIG.FORM.MESSAGES.ERROR}
                         </div>
                     {/if}
                 </form>
@@ -127,47 +115,48 @@
     .contact-page {
         min-height: 100vh;
         background: var(--bg-page);
-        font-family: 'Arial', sans-serif;
+        font-family: var(--font-family);
         color: var(--text-primary);
-        padding: 20px;
         display: flex;
+        padding-bottom: 20px;
         flex-direction: column;
+        align-items: center;
     }
 
     .contact-header {
-        background: var(--bg-primary); 
-        padding: 64px 0;
-        text-align: center; 
+        padding: 60px 20px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .header-content {
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .header-content h1 {
         font-size: 2.5rem;
         margin: 0;
-        color: var(--highlight-color);
+        color: var(--text-primary);
+        font-weight: 600;
     }
 
     .subtitle {
-        font-size: 1.2rem;
         color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin-top: 12px;
     }
 
     .contact-content {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px 20px;
-    }
-
-    .content-wrapper {
-        max-width: 900px;
         width: 100%;
+        max-width: 1200px;
+        margin-top: 40px;
     }
 
     .contact-grid {
         display: grid;
-        grid-template-columns: 1fr 1.5fr;
-        gap: 30px;
+        grid-template-columns: 1fr 2fr;
+        gap: 40px;
     }
 
     .contact-info {
@@ -181,39 +170,47 @@
         border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 20px;
-        text-align: left;
-        transition: transform 0.2s;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.2s; 
     }
 
     .info-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transform: translateY(-5px); 
     }
 
     .info-card i {
         font-size: 2rem;
-        color: var(--highlight-color);
+        color: var(--icon-color);
         margin-bottom: 10px;
     }
 
     .info-card h3 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         margin: 0;
         color: var(--text-primary);
     }
 
     .info-card p {
+        line-height: 1.6;
+        margin-bottom: 20px;
         color: var(--text-secondary);
-        margin: 0;
+    }
+
+    .info-card a {
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .info-card a:hover {
+        text-decoration: underline;
     }
 
     .contact-form {
         background: var(--bg-primary);
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        padding: 30px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 24px; 
     }
 
     .form-group {
@@ -224,7 +221,7 @@
         display: block;
         font-size: 1.1rem;
         color: var(--text-primary);
-        margin-bottom: 5px;
+        margin-bottom: 8px;
     }
 
     .form-group input,
@@ -233,84 +230,170 @@
         padding: 12px;
         border: 1px solid var(--border-color);
         border-radius: 6px;
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: var(--text-primary);
-        background: var(--bg-page);
+        background: var(--bg-secondary);
         outline: none;
-        transition: border-color 0.2s;
+        transition: all 0.2s ease;
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
-        border-color: var(--highlight-color);
+        border-color: var(--highlight-color); 
     }
 
     .form-group textarea {
         resize: vertical;
+        min-height: 120px;
     }
 
-    .submit-btn {
-        background-color: #094ab5;
-        color: white;
-        padding: 12px 24px;
-        border: none;
+    .success-message,
+    .error-message {
+        margin-top: 20px;
+        padding: 12px;
         border-radius: 6px;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
- 
-
-    .submit-btn:disabled {
-        background-color: #6c757d;
-        cursor: not-allowed;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .success-message {
-        color: green;
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        border-radius: 6px;
+        background-color: var(--success-bg);
+        border: 1px solid var(--success-border);
+        color: var(--success-text);
     }
 
     .error-message {
-        color: red;
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 6px;
-    }
-
-    .spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: #fff;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        background-color: var(--error-bg);
+        border: 1px solid var(--error-border);
+        color: var(--error-text);
     }
 
     @media (max-width: 768px) {
-        .contact-grid {
-            grid-template-columns: 1fr;
+        .contact-header {
+            padding: 40px 16px;
         }
 
-        .contact-info {
-            gap: 15px;
+        .header-content h1 {
+            font-size: 2rem;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        .contact-content {
+            padding: 0 16px;
+            margin-top: 24px;
+        }
+
+        .contact-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
         }
 
         .info-card {
-            text-align: center;
+            padding: 16px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: none;
+        }
+
+        .info-card i {
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        .info-card h3 {
+            font-size: 1.1rem;
+        }
+
+        .info-card p {
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        .contact-form {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+        }
+
+        .success-message,
+        .error-message {
+            margin-top: 16px;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .contact-header {
+            padding: 32px 12px;
+        }
+
+        .header-content h1 {
+            font-size: 1.8rem;
+        }
+
+        .info-card {
+            padding: 12px;
+            gap: 12px;
+            border: none;
+        }
+
+        .info-card i {
+            font-size: 1.2rem;
+        }
+
+        .info-card h3 {
+            font-size: 1rem;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+        }
+
+        .contact-form {
+            padding: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 8px;
+            font-size: 0.85rem;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
         }
     }
 </style>

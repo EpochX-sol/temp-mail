@@ -4,81 +4,20 @@
     import { emailStore } from '$lib/stores/emailStore';
     import { themeStore } from '$lib/stores/themeStore';
     import { createEventDispatcher } from 'svelte';
+    import { API_CONFIG, UI_CONFIG } from '$lib/utils/constants';
+
     const dispatch = createEventDispatcher();
 
     let searchQuery = '';
     let selectedMessages = new Set();
     let allSelected = false;
     let currentPage = 1;
-    let rowsPerPage = 10;
+    let rowsPerPage = UI_CONFIG.PAGINATION.DEFAULT_ROWS_PER_PAGE;
     let totalPages = 1;
     let isRefreshing = false;
 
-    const pageSizes = [
-        { value: 5, label: '5' },
-        { value: 10, label: '10' },
-        { value: 20, label: '20' },
-        { value: 50, label: '50' }
-    ];
-
-    const demoMessages = [
-        {
-            uid: '1',
-            name: 'us@inboxes.com',
-            subject: 'Welcome to our service - Welcome to the inboxes.com temporary email service',
-            time: 'A few seconds ago',
-            from: {
-                name: 'Welcome Bot',
-                address: 'us@inboxes.com'
-            },
-            is_starred: false,
-            is_read: false,
-            avatarColor: '#FFE2E5',
-            avatarTextColor: '#F1416C'
-        },
-        {
-            uid: '2',
-            name: 'support@inboxes.com',
-            subject: 'Have questions? - you can contact us for help',
-            time: '39 seconds ago',
-            from: {
-                name: 'Support Team',
-                address: 'support@inboxes.com'
-            },
-            is_starred: false,
-            is_read: false,
-            avatarColor: '#E8FFF3',
-            avatarTextColor: '#50CD89'
-        },
-        {
-            uid: '3',
-            name: 'security@inboxes.com',
-            subject: 'Your privacy is our priority - Learn about our security features',
-            time: '1 minute ago',
-            from: {
-                name: 'Security Team',
-                address: 'security@inboxes.com'
-            },
-            is_starred: false,
-            is_read: false,
-            avatarColor: '#FFF8DD',
-            avatarTextColor: '#FFA800'
-        },
-        {
-            uid: '4',
-            name: 'tips@inboxes.com',
-            subject: 'Pro tips for using temporary email - Get the most out of our service',
-            time: '2 minutes ago',
-            from: {
-                name: 'Tips & Tricks',
-                address: 'tips@inboxes.com'
-            },
-            is_starred: false,
-            is_read: false,
-            avatarColor: '#EEE5FF',
-            avatarTextColor: '#7239EA'
-        }
-    ];
+    const pageSizes = UI_CONFIG.PAGINATION.PAGE_SIZES;
+    const demoMessages = UI_CONFIG.DEMO_MESSAGES;
 
     $: messages = $emailStore.messages;
     $: displayMessages = $emailStore.currentEmail ? messages : demoMessages;
@@ -154,24 +93,25 @@
         };
     });
 
-    function handleSelectAll() {
-        if (allSelected) {
-            selectedMessages.clear();
-        } else {
-            messages.forEach(msg => selectedMessages.add(msg.uid));
-        }
-        selectedMessages = selectedMessages;
-        allSelected = !allSelected;
-    }
-
     function handleSelectMessage(uid) {
         if (selectedMessages.has(uid)) {
             selectedMessages.delete(uid);
         } else {
             selectedMessages.add(uid);
         }
-        selectedMessages = selectedMessages;
+         
         allSelected = selectedMessages.size === messages.length;
+    }
+
+    function handleSelectAll() {
+        if (allSelected || selectedMessages.size === messages.length) {
+            selectedMessages.clear();
+            allSelected = false;
+        } else {
+            messages.forEach(msg => selectedMessages.add(msg.uid));
+            allSelected = true;
+        } 
+        selectedMessages = selectedMessages;
     }
 
     async function handleSingleDelete(uid, event) {
@@ -215,13 +155,37 @@
             }, 500);
         }
     }
+
+    function formatMessageTime(date) {
+        const now = new Date();
+        const messageDate = new Date(date);
+        const diffInHours = Math.abs(now - messageDate) / 36e5;
+
+        if (diffInHours < 24) { 
+            return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else { 
+            return messageDate.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+    }
 </script>
 
 <div class="message-list"> 
     <div class="toolbar">
         <div class="toolbar-left">
-            <button class="tool-btn tooltip-container" title="Select All" on:click={handleSelectAll}>
-                <i class="bi bi-check-square tool-icon"></i>
+            <button 
+                class="tool-btn tooltip-container" 
+                title="Select All" 
+                on:click={handleSelectAll}
+                class:active={selectedMessages.size > 0}
+            >
+                <label class="checkbox-wrapper">
+                    <input 
+                        type="checkbox"
+                        checked={allSelected}
+                        on:change={handleSelectAll}
+                    >
+                    <span class="checkmark"></span>
+                </label>
                 <span class="tooltip">Select All</span>
             </button>
             <div class="tool-buttons">
@@ -241,7 +205,7 @@
         </div>
 
         <div class="toolbar-center desktop-only">
-            <h2 class="list-title">Message Inboxs</h2>
+            <h2 class="list-title">Message Inbox</h2>
         </div>
 
         <div class="toolbar-right desktop-only">
@@ -286,8 +250,7 @@
                         class:starred={message.is_starred}
                         on:click|stopPropagation={() => toggleStar(message.uid)}
                     >
-                        <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'}"></i>
-                        <span class="tooltip">Star</span>
+                        <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'} star-icon"></i>
                     </button>
  
                     <div class="message-avatar">
@@ -304,15 +267,16 @@
                         <div class="message-subject">{message.subject}</div>
                     </div>
                     <div class="message-time">
-                        {message.time || new Date(message.date).toLocaleString()}
+                        {message.time || formatMessageTime(message.date)}
                     </div>
                 </div>
             {/each}
         </div>
     {/if}
 
-    <div class="pagination-container">
-        <div class="pagination-left">
+                    
+    <div class="pagination-container" class:pagination-none={!$emailStore.currentEmail}>
+        <div class="pagination-left desktop-only">
             <select 
                 class="rows-select"
                 bind:value={rowsPerPage}
@@ -322,9 +286,8 @@
                     <option value={size.value}>{size.label}</option>
                 {/each}
             </select> 
-            
         </div>
-        <div class="pagination-center">
+        <div class="pagination-right">
             <button 
                 class="page-btn" 
                 on:click={() => handlePageChange(currentPage - 1)}
@@ -365,8 +328,7 @@
         box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
         overflow: hidden;
         display: flex;
-        flex-direction: column;
-        min-height: 200px;
+        flex-direction: column; 
         max-width: 1200px;
         margin: 0 auto;
         width: 100%;
@@ -393,7 +355,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px 24px;
+        padding: 16px;
         border-bottom: 1px solid var(--border-color);
     }
 
@@ -410,7 +372,7 @@
     .tool-btn {
         background: none;
         border: none;
-        color: var(--text-muted);
+        color: var(--text-primary);
         padding: 8px;
         border-radius: 4px;
         cursor: pointer;
@@ -608,16 +570,20 @@
 
     .pagination-container {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        padding: 16px 24px;
-        border-top: 1px solid var(--border-color);
+        align-items: center;
+        padding: 8px 24px;
+        border-top: 1px;
+        min-height: 40px;
     }
 
     .pagination-left {
         display: flex;
         align-items: center;
         gap: 12px;
+    }
+    .pagination-none{
+        display: none;
     }
 
     .rows-select {
@@ -630,14 +596,18 @@
         appearance: none;
         -webkit-appearance: none;
         -moz-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='currentColor' d='M1.4 0L6 4.6L10.6 0L12 1.4L6 7.4L0 1.4L1.4 0Z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A1A5B7' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 8px center;
-        background-size: 12px 8px;
+        background-size: 12px;
         cursor: pointer;
         font-size: 13px;
         min-width: 75px;
         transition: all 0.2s ease;
+    }
+
+    [data-theme="dark"] .rows-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23565674' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
     }
 
     .rows-select:focus {
@@ -659,198 +629,72 @@
         color: var(--text-primary);
     }
 
-    .pagination-center {
+    .pagination-right {
         display: flex;
-        align-items: center;
-        gap: 4px;
+        gap: 8px;
+        margin-left: auto;
     }
 
     .page-btn {
-        min-width: 32px;
-        height: 32px;
         display: flex;
         align-items: center;
         justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
         border: 1px solid var(--border-color);
         border-radius: 6px;
         background: var(--bg-primary);
-        color: var(--text-muted);
-        font-size: 13px;
+        color: var(--text-primary);
         cursor: pointer;
+        transition: all 0.2s ease;
     }
 
-    .page-btn:hover {
+    .page-btn:hover:not(:disabled) {
         background: var(--bg-hover);
-        color: var(--text-primary);
+        border-color: var(--text-muted);
+    }
+ 
+    .page-btn:not(:first-child):not(:last-child) {
+        background: var(--primary);
+        color: white;
+        border: none;
+    }
+
+    .page-btn:not(:first-child):not(:last-child):hover:not(:disabled) {
+        background: var(--primary-dark);
     }
 
     .page-btn.active {
-        background: #0D6EFD;
+        background: var(--primary-dark);
         color: white;
-        border-color: #0D6EFD;
+        font-weight: 500;
+        border: none;
     }
 
-    .rows-text {
-        color: var(--text-muted);
-        font-size: 13px;
+    .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: var(--bg-primary);
     }
 
-    @media (max-width: 768px) {
-        .desktop-only {
-            display: none;
-        }
-
-        .message-list {
-            border-radius: 5px;
-            margin: 0 -12px;
-            width: 100%;
-        }
-
-        .toolbar {
-            padding: 8px 12px;
-            gap: 8px;
-        }
-
-        .tool-buttons {
-            gap: 4px;
-        }
-
-        .tool-btn {
-            padding: 4px;
-        }
-
-        .tool-icon {
-            font-size: 0.5rem;
-        }
-
-        .message-item {
-            padding: 10px 12px;
-            gap: 8px;
-        }
-
-        .message-time {
-            display: none;
-        }
-
-        .message-content {
-            min-width: 0;
-        }
-
-        .message-name {
-            font-size: 12px;
-            margin-bottom: 2px;
-        }
-
-        .message-subject {
-            max-width: calc(100vw - 120px);
-        }
-
-        .pagination-container {
-            flex-direction: row;
-            gap: 12px;
-            align-items: center;
-            padding: 8px 12px;
-            justify-content: flex-end;
-        }
-
-        .rows-select, .rows-text {
-            display: none;
-        }
-
-        .pagination-center {
-            justify-content: flex-start;
-        }
-
-        .page-btn {
-            min-width: 28px;
-            height: 28px;
-            font-size: 12px;
-        }
+    .page-btn i {
+        font-size: 14px;
+        color: var(--text-primary); 
     }
 
-    @media (max-width: 480px) {
-        .tool-icon {
-            font-size: 0.5rem;
-        }
-
-        .tool-btn {
-            padding: 3px;
-        }
-        .message-list {
-            border-radius: 5px;
-            margin: 0 -12px;
-            width: 100%;
-        }
-        .message-avatar {
-            width: 28px;
-            height: 28px;
-        }
-
-        .avatar-letter {
-            font-size: 12px;
-        }
-
-        .message-name {
-            font-size: 11px;
-        }
-
-        .message-subject {
-            max-width: calc(100vw - 100px);
-            font-size: 11px;
-        }
-
-        .message-actions {
-            position: absolute;
-            right: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .message-item {
-            position: relative;
-            padding: 8px 10px;
-        }
-
-        .checkbox-wrapper {
-            width: 14px;
-            height: 14px;
-        }
-
-        .checkmark {
-            height: 14px;
-            width: 14px;
-            border-width: 1.5px;
-        }
-
-        .checkbox-wrapper input:checked ~ .checkmark:after {
-            left: 4px;
-            top: 1px;
-            width: 3px;
-            height: 7px;
-        }
-
-        .action-btn {
-            padding: 4px;
-        }
-
-        .action-btn i {
-            font-size: 0.85rem;
-        }
-
-        .page-btn {
-            min-width: 24px;
-            height: 24px;
-            font-size: 11px;
-        }
+    .page-ellipsis {
+        display: flex;
+        align-items: center;
+        padding: 0 4px;
+        color: var(--text-secondary);
     }
 
-    /* Tooltip container */
     .tooltip-container {
         position: relative;
         display: inline-block;
     }
-
-    /* Tooltip text */
+ 
     .tooltip {
         visibility: hidden;
         width: max-content;
@@ -869,8 +713,7 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         border: 1px solid #ddd;
     }
-
-    /* Show the tooltip on hover */
+ 
     .tooltip-container:hover .tooltip {
         visibility: visible;
         opacity: 1;
@@ -961,7 +804,7 @@
     }
 
     .tool-icon {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
         transition: transform 0.2s ease;
     }
 
@@ -1015,9 +858,248 @@
         to { transform: rotate(360deg); }
     }
 
-    @media (min-width: 768px) {
-        .desktop-only {
-            display: flex;
+    .desktop-only {
+        display: flex;
+    }
+    @media (max-width: 1024px) {
+        .list-title{
+           display:none;
+
+        }
+        .message-list {
+            border-radius: 12px;
+            margin: 0 auto;
+        }
+
+        .toolbar {
+            padding: 8px 12px;
+            min-height: 48px;
+        }
+
+        .search-box {
+           display:none;
+        }
+        .pagination-left {
+            display:none;
+
         }
     }
+
+    @media (max-width: 768px) {
+        .message-list {
+            border-radius: 8px;
+            margin: 0;
+        }
+
+        .toolbar {
+            padding: 6px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toolbar-left {
+            order: 1;
+            width: 100%;
+            justify-content: flex-start;
+            gap: 4px;
+        }
+
+        .toolbar-center {
+            order: 0;
+            width: 100%;
+            margin-bottom: 8px;
+            display: none;
+        }
+
+        .toolbar-right {
+            order: 2;
+            width: 100%;
+            display: none;
+        }
+
+        .search-box {
+            display:none;
+
+        }
+
+        .message-item {
+            padding: 8px 12px;
+            gap: 10px;
+        }
+
+        .message-content {
+            max-width: calc(100% - 100px);
+        }
+
+        .pagination-container {
+            padding: 6px 12px;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            min-height: 36px;
+        }
+
+        .pagination-right {
+            width: auto;
+            margin-right: 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .desktop-only {
+            display: none;
+        }
+
+        .toolbar-center {
+            display: none;
+        }
+
+        .toolbar-right {
+            display: none;
+        }
+
+        .toolbar-left {
+            justify-content: flex-start;
+        }
+
+        .tool-icon,.star-icon {
+            font-size: 1rem;
+        }
+
+        .page-btn {
+            min-width: 28px;
+            height: 28px;
+            padding: 0 6px;
+        }
+
+        .page-btn i {
+            font-size: 0.8rem;
+        }
+
+        .page-ellipsis {
+            padding: 0 4px;
+            font-size: 0.8rem;
+        }
+
+        .tool-buttons {
+            gap: 4px;
+        }
+
+        .tool-btn {
+            padding: 4px;
+            height: 32px;
+            width: 32px;
+        } 
+        .tooltip {
+            display: none;
+        }
+
+        .checkbox-wrapper {
+            width: 20px;
+            height: 20px;
+        }
+
+        .checkmark {
+            height: 20px;
+            width: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .message-list {
+            border-radius: 5px;
+        }
+
+        .message-item {
+            padding: 6px 8px;
+            gap: 8px;
+        }
+
+        .message-avatar {
+            width: 24px;
+            height: 24px;
+        }
+
+        .message-name {
+            font-size: 12px;
+        }
+
+        .message-subject {
+            font-size: 11px;
+        }
+
+        .page-btn {
+            min-width: 24px;
+            height: 24px;
+            padding: 0 4px;
+        }
+
+        .rows-select {
+            padding: 4px 20px 4px 8px;
+            font-size: 12px;
+        }
+
+        .toolbar-left {
+            gap: 2px;
+        }
+
+        .tool-buttons {
+            gap: 2px;
+        }
+
+        .tool-btn {
+            padding: 3px;
+            height: 28px;
+            width: 28px;
+        }
+
+        .tool-icon ,.star-icon{
+            font-size: 1rem;
+        }
+
+        .pagination-container {
+            padding: 4px 8px;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px; 
+        }
+
+        .pagination-right {
+            gap: 4px;
+        }
+
+        .page-btn {
+            min-width: 24px;
+            height: 24px;
+            padding: 0 4px;
+        }
+
+        .page-btn i {
+            font-size: 0.7rem;
+        }
+
+        .page-ellipsis {
+            font-size: 0.7rem;
+        }
+
+        .checkbox-wrapper {
+            width: 18px;
+            height: 18px;
+        }
+
+        .checkmark {
+            height: 18px;
+            width: 18px;
+        }
+    }
+ 
+    .tool-btn.active {
+        color: var(--primary);
+    }
+
+    .tool-btn.active .tool-icon {
+        color: var(--primary);  
+    }
+
 </style>

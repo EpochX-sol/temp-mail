@@ -1,28 +1,7 @@
 <script>
-    const features = [
-        {
-            title: "Your Privacy Matters.",
-            subtitle: "We Make It Simple.",
-            description: "SECURE & INSTANT",
-            items: [
-                {
-                    title: "Smart Protection",
-                    description: "Shield your personal inbox from unwanted emails. Our temporary email service acts as your digital guardian, keeping your real email address private and spam-free.",
-                    icon: "bi-shield-check"
-                },
-                {
-                    title: "Instant Access",
-                    description: "No sign-up, no waiting. Get a secure temporary email address in seconds. Perfect for quick verifications, downloads, or testing - ready when you are.",
-                    icon: "bi-lightning"
-                },
-                {
-                    title: "Zero Traces",
-                    description: "Complete privacy with our self-destructing inboxes. Use them when you need them, forget them when you're done. No data stored, no traces left behind.",
-                    icon: "bi-trash"
-                }
-            ]
-        }
-    ];
+    import { UI_CONFIG } from '$lib/utils/constants';
+
+    const features = UI_CONFIG.FEATURES;
 </script>
 
 <section class="features-section">

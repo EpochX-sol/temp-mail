@@ -1,33 +1,14 @@
 <script>
-    const faqs = [
-        {
-            question: "What is a Disposable Temporary Email?",
-            answer: "A disposable temporary email is a temporary email address that you can use to protect your privacy online. It allows you to receive emails without revealing your personal email address.",
-            icon: "bi-shield-check"
-        },
-        {
-            question: "How does it work?",
-            answer: "Our service generates a unique email address that forwards all incoming messages to our secure servers. You can view these messages through our web interface without downloading anything.",
-            icon: "bi-gear"
-        },
-        {
-            question: "Is it really free?",
-            answer: "Yes, our service is completely free to use with no hidden charges. We believe in providing accessible privacy tools for everyone.",
-            icon: "bi-currency-dollar"
-        }, 
-        {
-            question: "Is it secure?",
-            answer: "We use industry-standard encryption and security measures to protect your data. We never store personal information and automatically delete all emails after 24 hours.",
-            icon: "bi-lock"
-        }
-    ];
+    import { UI_CONFIG } from '$lib/utils/constants'; 
+
+    const faqs = UI_CONFIG.FAQS; 
 </script>
 
-<section class="faq-section" id="faq">
-    <h2 class="section-title">Frequently Asked Questions</h2>
+<section class="faq-section" >
+    <h2 class="section-title" id="faq">Frequently Asked Questions</h2>
     <div class="faq-list">
         {#each faqs as faq}
-            <div class="faq-item">
+            <div class="faq-item" >
                 <div class="faq-icon">
                     <i class="bi {faq.icon}"></i>
                 </div>
@@ -106,6 +87,7 @@
     }
 
     .faq-answer {
+        color: var(--text-secondary);
         font-size: 1.1rem;
         line-height: 1.6;
         margin: 0;

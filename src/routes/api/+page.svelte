@@ -1,59 +1,32 @@
 <script>
-    const endpoints = [
-        {
-            title: "Get Random Email",
-            method: "GET",
-            path: "/api/v1/email/generate",
-            description: "Generates a random temporary email address for testing purposes",
-            response: {
-                status: "success",
-                email: "test.user123@tempmail.com",
-                created_at: "2024-01-20T10:30:00Z",
-                expires_at: "2024-01-21T10:30:00Z"
-            }
-        },
-        {
-            title: "Check Messages",
-            method: "GET",
-            path: "/api/v1/messages/{email}",
-            description: "Retrieve all messages for a specific email address",
-            response: {
-                status: "success",
-                messages: [
-                    {
-                        id: "msg_123",
-                        subject: "Welcome!",
-                        from: "sender@example.com",
-                        received_at: "2024-01-20T10:35:00Z",
-                        has_attachments: false
-                    }
-                ]
-            }
-        },
-        {
-            title: "Get Message Content",
-            method: "GET",
-            path: "/api/v1/messages/{email}/{message_id}",
-            description: "Retrieve full content of a specific message including attachments",
-            response: {
-                status: "success",
-                message: {
-                    id: "msg_123",
-                    subject: "Welcome!",
-                    from: "sender@example.com",
-                    body: "Hello, welcome to our service...",
-                    attachments: []
-                }
-            }
-        }
-    ];
+    import { page } from '$app/stores';
+    import { onMount } from 'svelte';
+    import { API_PAGE_CONFIG } from '$lib/utils/constants';
+    import SEO from '$lib/components/common/SEO.svelte';
+    import Button from '$lib/components/common/Button.svelte';
+
+    let showRateLimitError = false;
+
+    onMount(() => {
+        const errorParam = $page.url.searchParams.get('error');
+        showRateLimitError = errorParam === 'rate_limit';
+    });
 </script>
+
+<SEO page="API" />
 
 <div class="api-page">
     <header class="api-header">
         <div class="header-content">
-            <h1>Temp Email API</h1>
-            <p class="subtitle">Support for high volume automated testing of email addresses</p>
+            <h1>{API_PAGE_CONFIG.TEXTS.TITLE}</h1>
+            <p class="subtitle">{API_PAGE_CONFIG.TEXTS.SUBTITLE}</p>
+            
+            {#if showRateLimitError}
+                <div class="rate-limit-alert" transition:fade>
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <p>{API_PAGE_CONFIG.TEXTS.RATE_LIMIT_ERROR}</p>
+                </div>
+            {/if}
         </div>
     </header>
 
@@ -61,30 +34,22 @@
         <div class="content-wrapper">
             <section class="intro-section">
                 <h2>How It Works</h2>
-                <p>The API is developer friendly and can be easily accessed on Rapid API web site. You can try the API for free for up to 200 requests per month and with a subscription go up to 100's of thousands of requests per month.</p>
+                <p>{API_PAGE_CONFIG.TEXTS.INTRO}</p>
                 
                 <div class="api-info">
-                    <div class="info-card">
-                        <i class="bi bi-rocket"></i>
-                        <h3>Quick Start</h3>
-                        <p>Get started in minutes with our simple API endpoints</p>
-                    </div>
-                    <div class="info-card">
-                        <i class="bi bi-shield-check"></i>
-                        <h3>Secure</h3>
-                        <p>Enterprise-grade security for all API calls</p>
-                    </div>
-                    <div class="info-card">
-                        <i class="bi bi-lightning"></i>
-                        <h3>High Performance</h3>
-                        <p>Fast and reliable email processing</p>
-                    </div>
+                    {#each API_PAGE_CONFIG.INFO_CARDS as card}
+                        <div class="info-card">
+                            <i class="bi {card.icon}"></i>
+                            <h3>{card.title}</h3>
+                            <p>{card.description}</p>
+                        </div>
+                    {/each}
                 </div>
             </section>
 
             <section class="endpoints-section">
                 <h2>API Endpoints</h2>
-                {#each endpoints as endpoint}
+                {#each API_PAGE_CONFIG.ENDPOINTS as endpoint}
                     <div class="endpoint-card">
                         <div class="endpoint-header">
                             <span class="method {endpoint.method.toLowerCase()}">{endpoint.method}</span>
@@ -103,11 +68,16 @@
             </section>
 
             <section class="cta-section">
-                <h2>Ready to Get Started?</h2>
-                <p>Get your API key and start building amazing applications</p>
-                <a href="https://rapidapi.com" class="cta-button" target="_blank">
-                    Get Free API Key
-                </a>
+                <h2>{API_PAGE_CONFIG.TEXTS.CTA_TITLE}</h2>
+                <p>{API_PAGE_CONFIG.TEXTS.CTA_SUBTITLE}</p>
+                <Button 
+                    variant="info"
+                    size="md"
+                    icon="bi-code-slash"
+                    on:click={() => window.open(API_PAGE_CONFIG.TEXTS.CTA_BUTTON_LINK, '_blank')}
+                >
+                    {API_PAGE_CONFIG.TEXTS.CTA_BUTTON_TEXT}
+                </Button>
             </section>
         </div>
     </main>
@@ -121,29 +91,26 @@
     }
 
     .api-header {
-        background: var(--bg-primary);
-        border-bottom: 1px solid var(--border-color);
-        padding: 64px 0;
+        padding: 60px 20px;
         text-align: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .header-content {
-        max-width: 1200px;
+        max-width: 800px;
         margin: 0 auto;
-        padding: 0 24px;
     }
 
     .header-content h1 {
         font-size: 2.5rem;
         margin: 0;
-        color: var(--highlight-color);
+        color: var(--text-primary);
+        font-weight: 600;
     }
 
     .subtitle {
-        font-size: 1.2rem;
         color: var(--text-secondary);
-        margin-top: 1rem;
+        font-size: 1.1rem;
+        margin-top: 12px;
     }
 
     .api-content {
@@ -277,5 +244,32 @@
         .info-card {
             padding: 16px;
         }
+    }
+
+    .rate-limit-alert {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        border-radius: 6px;
+        color: #856404;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .rate-limit-alert i {
+        font-size: 1.25rem;
+    }
+
+    .rate-limit-alert p {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    :global(.dark) .rate-limit-alert {
+        background-color: #382d06;
+        border-color: #665c2c;
+        color: #ffd970;
     }
 </style>

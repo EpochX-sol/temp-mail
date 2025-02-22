@@ -2,8 +2,7 @@
     import { themeStore } from '$lib/stores/themeStore';
     import { onMount } from 'svelte';
 
-    onMount(() => {
-        // Ensure initial theme is applied
+    onMount(() => { 
         document.documentElement.classList.toggle('dark', $themeStore === 'dark');
     });
 </script>
@@ -32,10 +31,7 @@
         transition: all 0.2s ease;
     }
 
-    .theme-toggle:hover {
-        color: var(--text-primary);
-        background: var(--bg-hover);
-    }
+ 
 
     :global(.dark) .theme-toggle {
         color: #9ca3af;

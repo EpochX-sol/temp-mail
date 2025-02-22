@@ -1,10 +1,15 @@
+/* Base theme variables */
 :root {
     /* Core colors */
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
+    --primary: #009ef7;
+    --primary-dark: #0095e8;
     --primary-light: #60a5fa;
     --secondary: #7239ea;
     --secondary-dark: #6029d5;
+    --success: #7239ea;
+    --info: #0d6efd;
+    --warning: #ffc700;
+    --danger: #dc3545;
 
     /* Light mode */
     --bg-primary: #ffffff;
@@ -25,15 +30,17 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
+ 
+    --icon-color: #1e1e2d;
 }
-
-/* Dark mode colors */
-.dark {
+ 
+[data-theme="dark"] {
+    --bg-page: #0b0c10;
+    
     --bg-primary: #15171c;
     --bg-secondary: #1B1B29;
     --bg-tertiary: #1e1e2d;
     --bg-hover: rgba(255, 255, 255, 0.05);
-    --bg-page: #0f1014;
     --text-primary: #ffffff;
     --text-secondary: #92929F;
     --text-muted: #565674;
@@ -47,6 +54,9 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+
+    /* Theme-aware icon colors */
+    --icon-color: #ffffff;
 }
 
 /* Base styles */

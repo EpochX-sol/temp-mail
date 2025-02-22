@@ -15,8 +15,8 @@ class ApiService {
 
         this.requestCount++; 
         if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) { 
-            window.location.href = '/rate-limit';
-            throw new Error('Rate limit exceeded');
+            window.location.href = '/api';
+            throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
         }
     }
 
@@ -33,8 +33,8 @@ class ApiService {
             }); 
 
             if (response.status === 429) { 
-                window.location.href = '/rate-limit';
-                throw new Error('Rate limit exceeded');
+                window.location.href = '/api?error=rate_limit';
+                throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
             }
 
             if (!response.ok) {
@@ -74,9 +74,9 @@ class ApiService {
         }
     }
 
-    // async getMessage(uid) {
-    //     return this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
-    // }
+    async getMessage(uid) {
+        return this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
+    }
 
     async deleteMessage(uid) {
         return this.handleRequest(API_ENDPOINTS.DELETE_MESSAGE(uid));
@@ -90,14 +90,8 @@ class ApiService {
         return this.handleRequest(API_ENDPOINTS.STAR_MESSAGE(uid));
     }
 
-    async markAsRead(uid) {
-        return this.handleRequest(API_ENDPOINTS.READ_MESSAGE(uid));
-    }
-
-    async markAsUnread(uid) {
-        return this.handleRequest(API_ENDPOINTS.UNREAD_MESSAGE(uid));
-    }
-
+  
+  
     async bulkDelete(uids) {
         return this.handleRequest(API_ENDPOINTS.BULK_DELETE, {
             method: 'POST',

@@ -1,4 +1,4 @@
-<!-- @ts-ignore -->
+ 
 <script>
     import { onMount } from 'svelte';
     import { themeStore } from '$lib/stores/themeStore';
@@ -10,15 +10,15 @@
     let lastScrollY = 0;
     let headerVisible = true;
     let isLoading = true;
+    let mounted = false;
 
     onMount(() => {
+        mounted = true;
         if (browser) {
-            const storedTheme = localStorage.getItem('theme');
-            if (storedTheme) {
-                themeStore.setTheme(storedTheme);
-            }
-            
-            // Set loading to false after theme is applied
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            themeStore.setTheme(savedTheme || systemTheme);
+             
             setTimeout(() => {
                 isLoading = false;
             }, 0);
@@ -34,23 +34,24 @@
             headerVisible = lastScrollY > currentScrollY || currentScrollY < 50;
             lastScrollY = currentScrollY;
         });
-
-        // Ensure theme is applied on initial load
+ 
         const theme = $themeStore;
         document.documentElement.classList.add(theme);
     });
+
+    $: if (mounted && browser) {
+        document.documentElement.setAttribute('data-theme', $themeStore);
+    }
 </script>
 
 {#if isLoading}
     <div class="initial-loading"> 
     </div>
 {:else}
-    <div class="app-wrapper">
-        <div class="header-wrapper" class:hidden={!headerVisible}>
-            <Header />
-        </div>
+    <div class="app-layout" data-theme={$themeStore}>
+        <Header />
         
-        <main class="content-wrapper">
+        <main class="main-content">
             <div class="content-container">
                 <slot />
             </div>
@@ -60,7 +61,7 @@
 {/if}
 
 <style>
-    .app-wrapper {
+    .main-content {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -68,7 +69,7 @@
     }
  
 
-    .content-wrapper {
+    .content-container {
         flex: 1;
         width: 100%;
     }

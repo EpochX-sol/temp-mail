@@ -2,9 +2,22 @@
     import { emailStore } from '$lib/stores/emailStore';
     import { goto } from '$app/navigation';
     import { createEventDispatcher } from 'svelte';
-    const dispatch = createEventDispatcher();
+    import { apiService } from '$lib/services/api';
     
+    const dispatch = createEventDispatcher();
     export let message;
+
+    async function toggleStar() {
+        try {
+            await emailStore.toggleStar(message.uid); 
+            message = { 
+                ...message, 
+                is_starred: !message.is_starred 
+            };
+        } catch (error) {
+            console.error('Failed to toggle star:', error);
+        }
+    }
 
     function handleBack() {
         dispatch('back');
@@ -21,6 +34,8 @@
             minute: 'numeric'
         });
     }
+    console.log(message)
+
 </script>
 
 <div class="message-detail">
@@ -35,12 +50,15 @@
                     <i class="bi bi-trash tool-icon"></i>
                     <span class="tooltip">Delete</span>
                 </button>
+                <button 
+                    class="tool-btn tooltip-container" 
+                    on:click={toggleStar}
+                >
+                    <i class="bi bi-star{message.is_starred ? '-fill' : ''} tool-icon"></i>
+                    <span class="tooltip">{message.is_starred ? 'Unstar' : 'Star'}</span>
+                </button>
             </div>
         </div>
-        <div class="toolbar-center">
-            <h2 class="list-title">Message Details</h2>
-        </div>
- 
     </div>
 
     <div class="message-container">
@@ -48,7 +66,7 @@
             <h1 class="message-subject">{message.subject}</h1>
             <div class="message-meta">
                 <div class="sender-info">
-                    <div class="avatar">
+                    <div class="avatar" style="background: {message.avatarColor}; color: {message.avatarTextColor}">
                         {message.from.name[0].toUpperCase()}
                     </div>
                     <div class="sender-details">
@@ -60,11 +78,6 @@
                             {formatDate(message.date)}
                         </div>
                     </div>
-                </div>
-                <div class="message-actions">
-                    <button class="action-btn" title="Star">
-                        <i class="bi bi-star{message.is_starred ? '-fill' : ''}"></i>
-                    </button> 
                 </div>
             </div>
         </header>
@@ -97,87 +110,51 @@
 
     .toolbar {
         display: flex;
+        justify-content: flex-start;
         align-items: center;
-        padding: 16px 24px;
+        padding: 16px;
         border-bottom: 1px solid var(--border-color);
-        background: var(--bg-primary);
     }
 
     .toolbar-left {
         display: flex;
         align-items: center;
-        gap: 16px;
-    }
-
-    .toolbar-center {
-        flex: 1;
-        text-align: center;
-    }
-
-    .toolbar-right {
-        display: flex;
-        align-items: center;
-        gap: 16px;
+        gap: 8px;
     }
 
     .tool-buttons {
         display: flex;
-        gap: 8px;
+        gap: 4px;
     }
 
     .tool-btn {
         background: none;
         border: none;
-        color: var(--text-muted);
-        padding: 8px;
+        color: var(--text-primary);
+        padding: 4px;
+        height: 32px;
+        width: 32px;
         cursor: pointer;
-        border-radius: 6px;
+        border-radius: 4px;
         transition: all 0.2s ease;
     }
 
     .tool-btn:hover {
         background: var(--bg-hover);
-        color: var(--text-primary);
     }
 
     .tool-icon {
-        font-size: 1.25rem;
+        font-size: 1rem;
+        color: var(--text-muted);
+        transition: color 0.2s ease;
     }
 
-    .list-title {
-        font-size: 1.25rem;
-        font-weight: 500;
-        color: var(--text-primary);
-        margin: 0;
+    .bi-star-fill {
+        color: var(--primary);
     }
 
-    .tooltip-container {
-        position: relative;
-        display: inline-block;
-    }
-
-    .tooltip {
-        visibility: hidden;
-        width: max-content;
-        background-color: #fff;
-        color: #333;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px 8px;
-        position: absolute;
-        z-index: 1;
-        top: 50%;
-        left: 110%;
-        transform: translateY(-50%);
-        opacity: 0;
-        transition: opacity 0.3s, visibility 0.3s;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        border: 1px solid #ddd;
-    }
-
-    .tooltip-container:hover .tooltip {
-        visibility: visible;
-        opacity: 1;
+    .toolbar-center {
+        display: none;
     }
 
     .message-container {
@@ -190,12 +167,15 @@
     .message-header {
         padding: 24px;
         border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
     }
 
     .message-subject {
-        font-size: 1rem;
-        margin: 0 0 16px 0;
+        font-size: 1.5rem;
+        font-weight: 600;
         color: var(--text-primary);
+        margin: 0 0 16px 0;
+        line-height: 1.3;
     }
 
     .message-meta {
@@ -295,9 +275,14 @@
         height: auto;
     }
 
+    .tool-btn:hover .tool-icon {
+        color: var(--text-primary);
+    }
+
     @media (max-width: 768px) {
         .message-detail {
-            padding: 16px;
+            border-radius: 0;
+            padding: 0;
         }
 
         .message-header {
@@ -305,18 +290,111 @@
         }
 
         .message-subject {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
         }
 
-        .message-meta {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 16px;
+        .sender-info {
+            gap: 8px;
         }
 
-        .message-actions {
-            width: 100%;
-            justify-content: flex-end;
+        .avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
         }
+
+        .sender-name {
+            font-size: 0.9rem;
+        }
+
+        .sender-email {
+            display: block;
+            margin: 2px 0 0 0;
+            font-size: 0.8rem;
+        }
+
+        .message-date {
+            font-size: 0.8rem;
+        }
+
+        .message-content {
+            padding: 16px;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .toolbar {
+            padding: 8px;
+        }
+
+        .message-header {
+            padding: 12px;
+        }
+
+        .message-subject {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 0.9rem;
+        }
+
+        .sender-name {
+            font-size: 0.85rem;
+        }
+
+        .sender-email {
+            font-size: 0.75rem;
+        }
+
+        .message-date {
+            font-size: 0.75rem;
+        }
+
+        .message-content {
+            padding: 12px;
+            font-size: 0.85rem;
+        }
+
+        .tool-btn {
+            height: 28px;
+            width: 28px;
+        }
+
+        .tool-icon {
+            font-size: 0.9rem;
+        }
+    }
+
+    .tooltip-container {
+        position: relative;
+    }
+
+    .tooltip {
+        position: absolute;
+        left: calc(100% + 8px);
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+        z-index: 1000;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .tooltip-container:hover .tooltip {
+        opacity: 1;
+        visibility: visible;
     }
 </style> 

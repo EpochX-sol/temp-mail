@@ -4,6 +4,7 @@ class StorageService {
     constructor() {
         this.EMAIL_KEY = 'emails';
         this.THEME_KEY = 'theme_mode';
+        this.MAX_EMAILS = 10;
     }
 
     getEmails() {
@@ -13,13 +14,16 @@ class StorageService {
 
     addEmail(email) {
         const emails = this.getEmails();
+        if (emails.length >= this.MAX_EMAILS) {
+            return { success: false, message: 'Maximum limit of 10 emails exceeded.' };
+        }
         if (!emails.includes(email)) {
             emails.push(email);
             localStorage.setItem(this.EMAIL_KEY, JSON.stringify(emails));
             this.setCurrentEmail(email);
-            return true;
+            return { success: true };
         }
-        return false;
+        return { success: false, message: 'Email already exists.' };
     }
 
     setCurrentEmail(email) {
