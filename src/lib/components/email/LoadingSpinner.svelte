@@ -1,4 +1,4 @@
-<!-- LoadingSpinner.svelte -->
+ 
 <script>
     export let size = "40px";
     export let color = "#3B82F6";
