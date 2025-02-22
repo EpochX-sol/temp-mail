@@ -1,7 +1,8 @@
 <script>
     import Modal from '$lib/components/common/Modal.svelte';
     import Button from '$lib/components/common/Button.svelte';
-    
+    import { emailStore } from '$lib/stores/emailStore';
+
     export let show = false;
     export let onClose = () => {};
     export let availableDomains = [];
@@ -11,8 +12,10 @@
     let customUsername = '';
     let showDomainSelect = false;
     let loading = false;
- 
+    let errorMessage = '';
+
     $: selectedDomain = availableDomains[0] || '';
+    $: emailCount = emailStore.getAllEmails().length;
 
     function getRandomDomain() {
         const randomIndex = Math.floor(Math.random() * availableDomains.length);
@@ -34,10 +37,19 @@
 
     async function handleCustomSubmit() {
         if (customUsername && selectedDomain) {
+            if (!/^[a-zA-Z0-9.]+$/.test(customUsername)) {
+                errorMessage = 'Invalid name. Only letters, numbers, and dots are allowed.';
+                return;
+            }
+            if (emailCount >= 10) {
+                errorMessage = 'Maximum limit of 10 emails exceeded.';
+                return;
+            }
             loading = true;
             try {
                 await onCustomEmail(`${customUsername}@${selectedDomain}`);
                 customUsername = '';
+                errorMessage = '';
                 onClose();
             } catch (error) {
                 console.error('Failed to create email:', error);
@@ -68,6 +80,9 @@
 
 <Modal {show} title="Add Inbox" {onClose}>
     <div class="create-email-container">
+        {#if errorMessage}
+            <div class="error-message">{errorMessage}</div>
+        {/if}
         <div class="random-section">
             <div class="random-header">
                 <i class="bi bi-shuffle"></i>
@@ -76,7 +91,7 @@
             <button 
                 class="random-btn" 
                 on:click={handleRandomEmail}
-                disabled={loading}
+                disabled={loading || emailCount >= 10}
             >
                 {#if loading}
                     <i class="bi bi-arrow-clockwise spinning"></i>
@@ -136,7 +151,7 @@
                 </button>
                 <button 
                     class="add-btn" 
-                    disabled={!customUsername || !selectedDomain}
+                    disabled={!customUsername || !selectedDomain || emailCount >= 10}
                     on:click={handleCustomSubmit}
                 >
                     Add Inbox
@@ -151,6 +166,12 @@
         display: flex;
         flex-direction: column;
         gap: 20px;
+    }
+
+    .error-message {
+        color: red;
+        text-align: center;
+        margin-bottom: 10px;
     }
 
     .random-section {
