@@ -51,11 +51,9 @@
         color: var(--text-primary);
     }
 
-    .privacy-header {
-        background: var(--bg-primary);
+    .privacy-header { 
         padding: 48px 0;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
+        text-align: center; 
     }
 
     .header-content {
