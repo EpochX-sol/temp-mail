@@ -67,7 +67,6 @@
     .header-content h1 {
         font-size: 2.5rem;
         margin: 0;
-        color: var(--highlight-color);
     }
 
     .subtitle {
@@ -100,8 +99,7 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .policy-section h2 {
-        color: var(--highlight-color);
+    .policy-section h2 { 
         font-size: 1.5rem;
         margin: 0 0 20px 0;
         padding-bottom: 10px;
@@ -143,8 +141,7 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .contact-section h2 {
-        color: var(--highlight-color);
+    .contact-section h2 { 
         margin-bottom: 16px;
     }
 
