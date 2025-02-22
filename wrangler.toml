@@ -1,7 +1,0 @@
-name = "temp-mail"
-compatibility_date = "2024-02-22"
-workers_dev = true
-
-[site]
-bucket = "./build"
-entry-point = "./.cloudflare/worker.js"
