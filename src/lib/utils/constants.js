@@ -228,7 +228,7 @@ export const API_PAGE_CONFIG = {
         }
     ],
     TEXTS: {
-        TITLE: "Temp Email API",
+        TITLE: "API",
         SUBTITLE: "Support for high volume automated testing of email addresses",
         INTRO: "The API is developer friendly and can be easily accessed on Rapid API web site. You can try the API for free for up to 200 requests per month and with a subscription go up to 100's of thousands of requests per month.",
         CTA_TITLE: "Ready to Get Started?",
@@ -243,7 +243,7 @@ export const API_PAGE_CONFIG = {
 
 export const ABOUT_PAGE_CONFIG = {
     HEADER: {
-        TITLE: "About Temp Emails",
+        TITLE: "About",
         MISSION: "Protecting your privacy in the digital age."
     },
     STORY: {
