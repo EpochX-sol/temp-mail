@@ -1,109 +1,23 @@
-<script> 
+<script>
+    import { PRIVACY_POLICY } from '$lib/utils/constants'; // Import the privacy policy constants
 
-    const sections = [
-        {
-            title: "Information We Collect",
-            content: [ 
-                {
-                    subtitle: "Email Service Information",
-                    items: [
-                        "Temporary email addresses generated",
-                        "Message metadata (sender, subject, timestamp)",
-                        "Email content for temporary storage",
-                        "Usage patterns and frequency"
-                    ]
-                }
-            ]
-        },
-        {
-            title: "How We Use Your Information",
-            content: [
-                {
-                    items: [
-                        "To provide and maintain our temporary email service",
-                        "To prevent abuse and ensure platform security",
-                        "To analyze usage patterns and improve our service",
-                        "To comply with legal obligations",
-                        "To respond to user support requests"
-                    ]
-                }
-            ]
-        },
-        {
-            title: "Data Retention",
-            content: [
-                {
-                    items: [
-                        "Temporary emails are automatically deleted after 24 hours",
-                        "Usage logs are retained for 30 days",
-                        "Account information is deleted upon account closure",
-                        "Backup data is encrypted and purged every 7 days"
-                    ]
-                }
-            ]
-        },
-        {
-            title: "Security Measures",
-            content: [
-                {
-                    items: [
-                        "End-to-end encryption for all email content",
-                        "Regular security audits and penetration testing",
-                        "Secure data centers with physical access controls",
-                        "Regular software updates and vulnerability patching",
-                        "Employee access controls and security training"
-                    ]
-                }
-            ]
-        },
-        {
-            title: "Your Rights",
-            content: [
-                {
-                    items: [
-                        "Right to access your personal data",
-                        "Right to delete your data",
-                        "Right to object to data processing",
-                        "Right to data portability",
-                        "Right to withdraw consent"
-                    ]
-                }
-            ]
-        },
-        {
-            title: "Third-Party Services",
-            content: [
-                {
-                    items: [
-                        "We do not sell your data to third parties",
-                        "Limited data sharing with essential service providers",
-                        "Third-party services are bound by strict data protection agreements",
-                        "Regular audits of third-party compliance"
-                    ]
-                }
-            ]
-        }
-    ];
 </script>
 
 <div class="privacy-page">
     <header class="privacy-header">
         <div class="header-content">
-            <h1>Privacy Policy</h1>
-            <p class="subtitle">Your privacy is our priority</p> 
+            <h1>{PRIVACY_POLICY.TITLE}</h1>
+            <p class="subtitle">{PRIVACY_POLICY.SUBTITLE}</p> 
         </div>
     </header>
 
     <main class="privacy-content">
         <div class="content-wrapper">
             <section class="intro-section">
-                <p>
-                    At Temp Emails, we take your privacy seriously. This Privacy Policy explains how we collect, 
-                    use, and protect your personal information when you use our temporary email service.
-                </p>
+                <p>{PRIVACY_POLICY.INTRO}</p>
             </section>
 
-            {#each sections as section}
+            {#each PRIVACY_POLICY.SECTIONS as section}
                 <section class="policy-section">
                     <h2>{section.title}</h2>
                     {#each section.content as subsection}
@@ -160,12 +74,6 @@
         font-size: 1.2rem;
         color: var(--text-secondary);
         margin: 8px 0;
-    }
-
-    .last-updated {
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        margin-top: 8px;
     }
 
     .privacy-content {
