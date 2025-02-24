@@ -8,6 +8,34 @@
     let loading = true;
     let error = null;
 
+    let iframeHeight = 600;
+
+    function adjustIframeContent(event) {
+        const iframe = event.target;
+        if (iframe.contentDocument && iframe.contentDocument.body) { 
+            const style = document.createElement('style');
+            style.textContent = `
+                body {
+                    margin: 0;
+                    padding: 0;
+                    width: 100% !important;
+                    min-width: 100% !important;
+                    overflow-x: hidden !important;
+                }
+                img, table {
+                    max-width: 100% !important;
+                    height: auto !important;
+                }
+                * {
+                    box-sizing: border-box !important;
+                    word-wrap: break-word !important;
+                }
+            `;
+            iframe.contentDocument.head.appendChild(style); 
+            iframeHeight = iframe.contentDocument.body.scrollHeight + 20;
+        }
+    }
+
     onMount(async () => {
         try {
             const uid = $page.params.uid;
@@ -53,52 +81,72 @@
     {/if}
 </svelte:head>
 
-<div class="email-viewer">
-    {#if loading}
-        <div class="loading-container">
-            <LoadingSpinner />
-        </div>
-    {:else if error}
-        <div class="error-container">
-            <i class="bi bi-exclamation-circle"></i>
-            <p>{error}</p>
-        </div>
-    {:else if message}
-        <div class="email-header">
-            <h1 class="email-subject">{message.subject}</h1>
-            <div class="email-meta">
-                <div class="sender">
-                    <span class="from-name">{message.from.name}</span>
-                    <span class="from-address">&lt;{message.from.address}&gt;</span>
-                </div>
-                <div class="date">{formatDate(message.date)}</div>
+<div class="message-detail">
+    <div class="message-container">
+        {#if loading}
+            <div class="loading-container">
+                <LoadingSpinner />
             </div>
-        </div>
-        <div class="email-content">
-            <!-- {#if message.msg.html}
-                <iframe
-                    class="email-iframe"
-                    sandbox="allow-same-origin"
-                    srcdoc={message.msg.html}
-                    title="Email Content" 
-                    style="height: 100vh; width: 50vw;"
-                ></iframe>
-            {:else if message.msg.text_formatted}
-                <pre>{message.msg.text_formatted}</pre>
-            {:else}
-                <pre>{message.msg.text}</pre>
-            {/if} -->
-        </div>
-    {/if}
+        {:else if error}
+            <div class="error-container">
+                <i class="bi bi-exclamation-circle"></i>
+                <p>{error}</p>
+            </div>
+        {:else if message}
+            <header class="message-header">
+                <h1 class="message-subject">{message.subject}</h1>
+                <div class="message-meta">
+                    <div class="sender-info">
+                        <div class="avatar" style="background: {message.avatarColor || '#4A5568'}">
+                            {message.from.name[0].toUpperCase()}
+                        </div>
+                        <div class="sender-details">
+                            <div class="sender-name">
+                                {message.from.name}
+                                <span class="sender-email">&lt;{message.from.address}&gt;</span>
+                            </div>
+                            <div class="message-date">
+                                {formatDate(message.date)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="message-content">
+                {#if message.msg.html}
+                    <iframe
+                        class="email-iframe"
+                        sandbox="allow-same-origin"
+                        srcdoc={message.msg.html}
+                        title="Email Content"
+                        on:load={adjustIframeContent}
+                        style="height: {iframeHeight}px;"
+                    ></iframe>
+                {:else if message.msg.text_formatted}
+                    <pre>{message.msg.text_formatted}</pre>
+                {:else}
+                    <pre>{message.msg.text}</pre>
+                {/if}
+            </div>
+        {/if}
+    </div>
 </div>
 
 <style>
-    .email-viewer {
-        max-width: 900px;
-        margin: 10px auto;
-        padding: 20px;
-        min-height: 100vh;
+    .message-detail {
+        max-width: 80%;
+        margin: 20px auto;
         background: var(--bg-primary);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .message-container {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        overflow: hidden;
     }
 
     .loading-container {
@@ -127,106 +175,175 @@
         margin: 0;
     }
 
-    .email-header {
+    .message-header {
+        padding: 24px;
         border-bottom: 1px solid var(--border-color);
-        padding-bottom: 20px;
-        margin-bottom: 20px;
+        background: var(--bg-secondary);
     }
 
-    .email-subject {
-        font-size: 1.8rem;
+    .message-subject {
+        font-size: 1.5rem;
+        font-weight: 600;
         color: var(--text-primary);
         margin: 0 0 16px 0;
-        font-weight: 600;
         line-height: 1.3;
     }
 
-    .email-meta {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
+    .message-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .sender {
-        margin-bottom: 8px;
+    .sender-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
-    .from-name {
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-weight: 500;
+        font-size: 1.2rem;
+    }
+
+    .sender-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .sender-name {
         color: var(--text-primary);
+        font-weight: 500;
     }
 
-    .from-address {
-        margin-left: 8px;
-        color: var(--text-secondary);
+    .sender-email {
+        color: var(--text-muted);
+        font-weight: normal;
+        margin-left: 4px;
     }
 
-    .date {
-        color: var(--text-secondary);
+    .message-date {
+        color: var(--text-muted);
+        font-size: 0.9rem;
     }
 
-    .email-content {
-        color: var(--text-primary);
-        line-height: 1.6;
-        font-size: 1rem;
-    }
-
-    .email-content :global(img) {
+    .message-content { 
+        width: 100%;
         max-width: 100%;
-        height: auto;
-    }
-
-    .email-content :global(a) {
-        color: var(--primary);
-        text-decoration: none;
-    }
-
-    .email-content :global(a:hover) {
-        text-decoration: underline;
-    }
-
-    .email-content :global(pre) {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        background: var(--bg-secondary);
-        padding: 16px;
-        border-radius: 8px;
         overflow-x: auto;
     }
 
+    .email-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: white;
+        padding:0px 5px;
+    }
+
+    .message-content :global(pre) {
+        white-space: pre-wrap;
+        font-family: inherit;
+        margin: 0;
+    }
+
     @media (max-width: 768px) {
-        .email-viewer {
+        .message-detail {
+            margin: 0;
+            border-radius: 0;
+            width: 100%;
+        }
+
+        .message-header {
             padding: 16px;
         }
 
-        .email-subject {
-            font-size: 1.5rem;
+        .message-subject {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
         }
 
-        .email-meta {
+        .sender-info {
+            gap: 8px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+        }
+
+        .sender-name {
             font-size: 0.9rem;
         }
 
-        .email-content {
-            font-size: 0.95rem;
+        .sender-email {
+            display: block;
+            margin: 2px 0 0 0;
+            font-size: 0.8rem;
+        }
+
+        .message-date {
+            font-size: 0.8rem;
+        }
+
+        .message-content {
+            padding: 16px;
+        }
+
+        .email-iframe {
+            width: 100%;
+            margin-left: -16px;
+            border-radius: 0;
         }
     }
 
     @media (max-width: 480px) {
-        .email-viewer {
+        .message-detail{
+            max-width: 100%;
+
+        }
+        .message-header {
             padding: 12px;
         }
 
-        .email-subject {
-            font-size: 1.3rem;
-            margin-bottom: 12px;
+        .message-subject {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
         }
 
-        .email-meta {
+        .avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 0.9rem;
+        }
+
+        .sender-name {
             font-size: 0.85rem;
         }
 
-        .email-content {
-            font-size: 0.9rem;
+        .sender-email {
+            font-size: 0.75rem;
+        }
+
+        .message-date {
+            font-size: 0.75rem;
+        }
+
+        .message-content {
+            padding: 12px;
+        }
+
+        .email-iframe {
+            margin-left: -12px;
         }
     }
 </style> 
