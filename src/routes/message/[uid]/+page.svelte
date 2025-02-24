@@ -37,26 +37,35 @@
     }
 
     onMount(async () => {
-        try {
-            const uid = $page.params.uid;
-            const response = await apiService.getMessage(uid);
-            if (response.code === 200 && response.message) {
-                message = response.message;
-                 
-                if (!message.is_read) {
-                    message = { ...message, is_read: true }; 
-                    apiService.markAsRead(uid).catch(error => {
-                        console.error('Failed to mark message as read:', error);
-                    });
-                }
-            } else {
-                error = 'Message not found';
-            }
-        } catch (err) {
-            console.error('Failed to fetch message:', err);
-            error = 'Failed to load message';
-        } finally {
+        // Check if we have message data from navigation
+        const navigationState = history.state?.navigationData;
+        const uid = $page.params.uid;
+
+        if (navigationState?.message?.uid === uid) {
+            // Use existing message data if available
+            message = navigationState.message;
             loading = false;
+        } else { 
+            try {
+                const response = await apiService.getMessage(uid);
+                if (response.code === 200 && response.message) {
+                    message = response.message;
+                    
+                    if (!message.is_read) {
+                        message = { ...message, is_read: true }; 
+                        apiService.markAsRead(uid).catch(error => {
+                            console.error('Failed to mark message as read:', error);
+                        });
+                    }
+                } else {
+                    error = 'Message not found';
+                }
+            } catch (err) {
+                console.error('Failed to fetch message:', err);
+                error = 'Failed to load message';
+            } finally {
+                loading = false;
+            }
         }
     });
 
@@ -93,26 +102,7 @@
                 <p>{error}</p>
             </div>
         {:else if message}
-            <header class="message-header">
-                <h1 class="message-subject">{message.subject}</h1>
-                <div class="message-meta">
-                    <div class="sender-info">
-                        <div class="avatar" style="background: {message.avatarColor || '#4A5568'}">
-                            {message.from.name[0].toUpperCase()}
-                        </div>
-                        <div class="sender-details">
-                            <div class="sender-name">
-                                {message.from.name}
-                                <span class="sender-email">&lt;{message.from.address}&gt;</span>
-                            </div>
-                            <div class="message-date">
-                                {formatDate(message.date)}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
+            
             <div class="message-content">
                 {#if message.msg.html}
                     <iframe
@@ -135,11 +125,8 @@
 
 <style>
     .message-detail {
-        max-width: 80%;
-        margin: 20px auto;
-        background: var(--bg-primary);
-        border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        max-width: 100%; 
+        background: var(--bg-primary);  
         overflow: hidden;
     }
 
@@ -219,19 +206,18 @@
         gap: 4px;
     }
 
-    .sender-name {
+    .sender-name, .sender-email {
         color: var(--text-primary);
         font-weight: 500;
     }
 
     .sender-email {
-        color: var(--text-muted);
         font-weight: normal;
         margin-left: 4px;
     }
 
     .message-date {
-        color: var(--text-muted);
+        color: var(--text-primary);
         font-size: 0.9rem;
     }
 

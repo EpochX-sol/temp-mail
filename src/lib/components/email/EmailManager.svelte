@@ -98,7 +98,7 @@
             </button>
             <button class="action-btn danger" on:click={() => dispatch('deleteInbox', { email: storedEmail })}>
                 <i class="bi bi-trash action-btn-icon"></i>
-                Delete Email
+                Delete <span class="delete-email">Email</span>
             </button>
             <button class="action-btn" on:click={() => dispatch('showEmails')}>
                 <i class="bi bi-list action-btn-icon"></i>
@@ -236,14 +236,15 @@
             margin: 1rem 0;
             font-size: 1rem;
         }
+        .delete-email{
+            display: none;
+        }
 
         .action-buttons {
             flex-wrap: nowrap; 
             margin: 24px auto;
         }
-        .action-btn-icon{
-            display: none;
-        }
+ 
         .action-btn { 
             min-width: 120px;
             font-size: 0.7rem; 
@@ -276,7 +277,7 @@
             font-size: 1rem;
             letter-spacing: 0.2px;
         }
-        .action-btn-icon{
+        .delete-email{
             display: none;
         }
         .copy-button {

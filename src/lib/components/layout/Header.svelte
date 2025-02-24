@@ -65,7 +65,7 @@
 
         <nav class="main-nav desktop-nav">
             <a href="/" class="nav-link" class:active={currentPath === '/'}>Home</a>
-            <button class="nav-link" on:click={scrollToFaq}>FAQ</button>
+            <a class="nav-link" on:click={scrollToFaq}>FAQ</a>
             <a href="/api" class="nav-link" class:active={currentPath === '/api'}>API</a>
             <a href="/contact" class="nav-link" class:active={currentPath === '/contact'}>Contact Us</a>
             <a href="/about" class="nav-link" class:active={currentPath === '/about'}>About Us</a>

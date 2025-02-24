@@ -47,37 +47,37 @@
                 </div>
             </section>
 
-            <section class="endpoints-section">
-                <h2>API Endpoints</h2>
-                {#each API_PAGE_CONFIG.ENDPOINTS as endpoint}
-                    <div class="endpoint-card">
-                        <div class="endpoint-header">
-                            <span class="method {endpoint.method.toLowerCase()}">{endpoint.method}</span>
-                            <code class="path">{endpoint.path}</code>
-                        </div>
-                        <div class="endpoint-content">
-                            <h3>{endpoint.title}</h3>
-                            <p>{endpoint.description}</p>
-                            <div class="response">
-                                <h4>Example Response</h4>
-                                <pre><code>{JSON.stringify(endpoint.response, null, 2)}</code></pre>
-                            </div>
-                        </div>
-                    </div>
-                {/each}
-            </section>
+            <section class="how-it-works"> 
+                <p>
+                    Create disposable email addresses instantly on our secure domains. Monitor incoming messages through our 
+                    "Inbox Messages" endpoint and access detailed message content, including attachments, via our 
+                    "Message Content" endpoint. All through a simple, RESTful API interface.
+                </p>
 
-            <section class="cta-section">
-                <h2>{API_PAGE_CONFIG.TEXTS.CTA_TITLE}</h2>
-                <p>{API_PAGE_CONFIG.TEXTS.CTA_SUBTITLE}</p>
-                <Button 
-                    variant="info"
-                    size="md"
-                    icon="bi-code-slash"
-                    on:click={() => window.open(API_PAGE_CONFIG.TEXTS.CTA_BUTTON_LINK, '_blank')}
-                >
-                    {API_PAGE_CONFIG.TEXTS.CTA_BUTTON_TEXT}
-                </Button>
+                <div class="docs-links">
+                    <p>
+                        Explore our comprehensive documentation in 
+                        <a href="/docs" class="link">our API guide</a> 
+                        or visit our official page on 
+                        <a href="https://rapidapi.com" class="link">Rapid API</a>.
+                    </p>
+                </div>
+
+                <ul class="feature-list">
+                    <li>Instant email address generation on our verified domains</li>
+                    <li>Perfect for automated testing and email verification workflows</li>
+                    <li>Secure message handling for your automated communications</li>
+                    <li>Enterprise-grade SMTP server with high-performance message processing</li>
+                    <li>Reliable message and attachment storage with instant access</li>
+                    <li>Simple REST API for managing and monitoring inboxes</li>
+                    <li>Comprehensive message data in JSON format including headers, body content, 
+                        timestamps, and attachment handling</li>
+                </ul>
+
+                <div class="cta-section">
+                    <p>Ready to get started? Get your API key from <a href="https://rapidapi.com" class="link">Rapid API</a></p>
+                    <a href="https://rapidapi.com" class="cta-button">Start Free Trial</a>
+                </div>
             </section>
         </div>
     </main>
@@ -203,12 +203,8 @@
     }
 
     .cta-section {
-        text-align: center;
-        margin-top: 64px;
-        padding: 48px;
-        background: var(--bg-primary);
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: center; 
+        border-radius: 8px;  
     }
 
     .cta-button {
@@ -218,8 +214,7 @@
         padding: 12px 24px;
         border-radius: 6px;
         text-decoration: none;
-        font-weight: bold;
-        margin-top: 24px;
+        font-weight: bold; 
         transition: background-color 0.2s;
     }
  
@@ -248,8 +243,7 @@
 
     .rate-limit-alert {
         margin-top: 1rem;
-        padding: 1rem;
-        background-color: #fff3cd;
+        padding: 1rem; 
         border: 1px solid #ffeeba;
         border-radius: 6px;
         color: #856404;
@@ -271,5 +265,89 @@
         background-color: #382d06;
         border-color: #665c2c;
         color: #ffd970;
+    }
+
+    .how-it-works {
+        margin-top: 30px;
+        padding: 0 20px;
+    }
+
+    .how-it-works h2 {
+        font-size: 2rem;
+        margin-bottom: 24px; 
+    }
+
+    .how-it-works p {
+        font-size: 1.1rem;
+        line-height: 1.6; 
+        margin-bottom: 24px;
+    } 
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 32px 0;
+    }
+
+    .feature-list li {
+        padding: 12px; 
+        border-radius: 8px; 
+        position: relative;
+        padding-left: 24px;
+    }
+
+    .feature-list li::before {
+        content: "•";
+        position: absolute;
+        left: 8px;
+        color: var(--primary);
+    }
+ 
+    .cta-section p {
+        margin-bottom: 24px;
+    }
+
+    .cta-button {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .cta-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .link {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .how-it-works {
+            margin-top: 40px;
+            padding: 0 16px;
+        }
+
+        .feature-list li {
+            padding: 12px;
+            padding-left: 20px;
+            font-size: 0.95rem;
+        }
+
+        .cta-section {
+            padding: 32px 16px;
+        }
     }
 </style>

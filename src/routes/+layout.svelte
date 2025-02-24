@@ -1,4 +1,3 @@
- 
 <script>
     import { onMount } from 'svelte';
     import { themeStore } from '$lib/stores/themeStore';
@@ -7,6 +6,8 @@
     import { browser } from '$app/environment'; 
     import '../app.css';
     import Footer from '$lib/components/layout/Footer.svelte';
+    import { page } from '$app/stores';
+
     let lastScrollY = 0;
     let headerVisible = true;
     let isLoading = true;
@@ -49,14 +50,18 @@
     </div>
 {:else}
     <div class="app-layout" data-theme={$themeStore}>
-        <Header />
+        {#if !($page.url.pathname.startsWith('/message/'))}
+            <Header />
+        {/if}
         
         <main class="main-content">
             <div class="content-container">
                 <slot />
             </div>
         </main>
-        <Footer />
+        {#if !($page.url.pathname.startsWith('/message/'))}
+            <Footer />
+        {/if}
     </div>
 {/if}
 
@@ -68,7 +73,6 @@
         background-color: var(--bg-page);
     }
  
-
     .content-container {
         flex: 1;
         width: 100%;

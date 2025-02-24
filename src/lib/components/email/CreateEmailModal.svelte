@@ -113,7 +113,12 @@
 
 <svelte:window on:click={handleClickOutside}/>
 
-<Modal {show} title="Add Inbox" {onClose}>
+<Modal 
+    {show} 
+    title="Add Inbox" 
+    {onClose}
+    closeOnBackdrop={false}
+>
     <div class="create-email-container"> 
         <div class="random-section">
             <div class="random-header">
@@ -182,16 +187,21 @@
                 </div>
             </div>
             <div class="action-buttons">
-                <button class="cancel-btn" on:click={onClose}>
+                <Button 
+                    variant="secondary"
+                    size="sm"
+                    on:click={onClose}
+                >
                     Cancel
-                </button>
-                <button 
-                    class="add-btn" 
+                </Button>
+                <Button 
+                    variant="primary"
+                    size="sm"
                     disabled={!customUsername || !selectedDomain || emailCount >= 10 || !isValidEmail}
                     on:click={handleCustomSubmit}
                 >
-                    Add Inbox
-                </button>
+                    Add inbox
+                </Button>
             </div>
         </div>
     </div>
@@ -201,7 +211,7 @@
     .create-email-container {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 20px; 
     }
  
 
@@ -320,7 +330,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 20px;
+        margin-bottom: 32px;
     }
 
     .custom-input {
@@ -332,6 +342,7 @@
         transition: all 0.2s ease;
         color: var(--text-primary);
         min-width: 0;
+
     }
 
     .custom-input.invalid {
@@ -354,6 +365,7 @@
     .domain-select-wrapper {
         position: relative;
         width: 170px;
+        z-index: 1001;
     }
 
     .domain-select {
@@ -381,16 +393,17 @@
     }
 
     .domain-options { 
-        position: fixed; 
-        top: 19%;
-        z-index: 20000;
+        position: absolute;
+        bottom: calc(100% + 4px);
+        left: 0;
         background: var(--bg-primary);
         border: 1px solid var(--border-color);
         border-radius: 8px;
         overflow-y: auto;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        width: 170px;
-        max-height: 300px;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-height: 250px;
+        z-index: 1001;
     }
 
  
@@ -420,72 +433,11 @@
         display: flex;
         justify-content: flex-end;
         gap: 12px;
+        margin-top: 24px;
     }
 
-    .cancel-btn,
-    .add-btn {
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        height: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .cancel-btn {
-        background: #4f5357;
-        border: 1px solid #e2e8f0;
-        color: #64748b;
-    }
-
-    .add-btn {
-        background: #009ef7;
-        border: none;
-        color: white;
-        font-weight: 500;
-    }
-
-    .add-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        background: #f1f5f9;
-        color: #94a3b8;
-    }
-
-    .cancel-btn:hover:not(:disabled) {
-        background: #e2e8f0;
-        color: #1e293b;
-        border-color: #cbd5e1;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .add-btn:hover:not(:disabled) {
-        background: #014769;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+  
  
-    :global([data-theme="dark"]) .cancel-btn {
-        background: #313147;
-        border-color: #2b2b40;
-        color: #92929F;
-    }
-
-    :global([data-theme="dark"]) .cancel-btn:hover:not(:disabled) {
-        background: #2b2b40;
-        color: #ffffff;
-        border-color: #565674;
-    }
-
-    :global([data-theme="dark"]) .add-btn:disabled {
-        background: #1e1e2d;
-        color: #565674;
-    }
-
     @media (max-width: 768px) {
         .create-email-container {
             gap: 16px;
@@ -516,27 +468,21 @@
         .action-buttons {
             flex-direction: column-reverse;
             gap: 8px;
-            margin-top: 40px;
+            margin-top: 48px;
         }
 
-        .cancel-btn,
-        .add-btn {
-            width: 100%;
-            padding: 12px;
-            text-align: center;
-            height: 42px;
-            font-size: 14px;
-        }
-
+        
         .domain-options {
             position: absolute;
-            bottom: 40px;
+            bottom: calc(100% + 4px);
             top: auto;
             left: 0;
-            transform: none;
             width: 100%;
-            max-height: 170px;
-            border-radius: 16px 16px 0 0;
+            max-height: 180px;
+            border-radius: 8px;
+            margin-top: 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
         }
 
         .error-hint {
@@ -551,4 +497,8 @@
         background: var(--bg-tertiary);
         box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
     }
-</style> 
+
+    :global(.modal-content) {
+        overflow: visible !important;
+    }
+</style>  

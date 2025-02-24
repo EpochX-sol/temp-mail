@@ -13,14 +13,14 @@
     let iframeHeight = 600;
 
     async function toggleStar() {
+        if (isStarring) return;
         isStarring = true;
+
         try {
             const success = await emailStore.toggleStar(message.uid);
             if (success) {
-                message = { 
-                    ...message, 
-                    is_starred: !message.is_starred 
-                };
+                message.is_starred = !message.is_starred;
+                emailStore.updateMessage(message.uid, { is_starred: message.is_starred });
             }
         } catch (error) {
             console.error('Failed to toggle star:', error);
@@ -82,7 +82,12 @@
             iframeHeight = iframe.contentDocument.body.scrollHeight + 20;
         }
     }
- 
+
+    function handleFullMessageClick() {
+        goto(`/message/${message.uid}`, {
+            state: { message }
+        });
+    }
 
 </script>
 
@@ -145,10 +150,11 @@
         </header>
 
         <div class="read-full-message">
-            <span>Can't see message content? Read the full message by</span>
-            <button class="full-message-btn" on:click={() => goto(`/message/${message.uid}`)}>
-                Clicking here <i class="bi bi-arrow-right"></i>
-            </button>
+            This is a preview. 
+            <button class="full-message-btn" on:click={handleFullMessageClick}>
+                Click here <i class="bi bi-arrow-right"></i>
+            </button> 
+            to read the full message.
         </div>
 
         <div class="message-content">
@@ -200,19 +206,21 @@
 
     .tool-buttons {
         display: flex;
-        gap: 4px;
+        gap: 8px;
     }
 
     .tool-btn {
         background: none;
-        border: none;
-        color: var(--text-primary);
-        padding: 4px;
-        height: 32px;
-        width: 32px;
+        border: none; 
+        padding: 8px;
+        height: 36px;
+        width: 36px;
         cursor: pointer;
-        border-radius: 4px;
+        border-radius: 6px;
         transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .tool-btn:hover {
@@ -220,8 +228,8 @@
     }
 
     .tool-icon {
-        font-size: 1rem;
-        color: var(--text-muted);
+        font-size: 1.2rem;
+        color: var(--text-primary);
         transition: color 0.2s ease;
     }
 
@@ -297,8 +305,7 @@
         font-size: 0.9rem;
     } 
 
-    .message-content {
-        padding: 24px;
+    .message-content { 
         width: 100%;
         max-width: 100%;
         overflow-x: auto;
@@ -400,9 +407,11 @@
 
     .read-full-message {
         text-align: center;
-        padding: 16px;
+        padding: 8px;
         margin: 16px 0;  
-        color: var(--text-secondary);
+        color: black;
+        font-size: 15px;
+        background: linear-gradient(135deg, rgb(238, 229, 229) 0%, rgb(223, 212, 212) 50%, rgb(247, 231, 231) 100%);
     }
 
     .full-message-btn {
@@ -478,13 +487,10 @@
             padding: 12px;
             font-size: 0.9rem;
         }
-        .message-content {
-            padding: 16px;
-        }
+ 
 
         .email-iframe {
-            width: 100%;
-            margin-left: -16px;
+            width: 100%; 
             border-radius: 0;
         }
 
@@ -492,6 +498,16 @@
             padding: 6px 12px;
             font-size: 0.9rem;
             margin-top: 5px;
+        }
+
+        .tool-btn {
+            height: 32px;
+            width: 32px;
+            padding: 6px;
+        }
+
+        .tool-icon {
+            font-size: 1.1rem;
         }
     }
 
@@ -530,22 +546,18 @@
             font-size: 0.75rem;
         }
 
-        .message-content {
-            padding: 12px;
-        }
-
         .tool-btn {
             height: 28px;
             width: 28px;
+            padding: 4px;
         }
 
         .tool-icon {
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         .email-iframe {
-            width: 100%;
-            margin-left: -12px;
+            width: 100%; 
             border-radius: 0;
         }
 

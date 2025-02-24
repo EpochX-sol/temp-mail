@@ -176,6 +176,18 @@ function createEmailStore() {
                 console.error('Failed to delete inbox:', error);
                 throw error;
             }
+        },
+        updateMessage(uid, updates) {
+            update(store => {
+                const messageIndex = store.messages.findIndex(m => m.uid === uid);
+                if (messageIndex !== -1) {
+                    store.messages[messageIndex] = {
+                        ...store.messages[messageIndex],
+                        ...updates
+                    };
+                }
+                return store;
+            });
         }
     };
 }

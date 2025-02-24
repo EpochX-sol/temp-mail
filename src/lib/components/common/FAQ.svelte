@@ -5,8 +5,8 @@
 </script>
 
 <section class="faq-section" >
-    <h2 class="section-title" id="faq">Frequently Asked Questions</h2>
-    <div class="faq-list">
+    <h2 class="section-title" >Frequently Asked Questions</h2>
+    <div class="faq-list "id="faq">
         {#each faqs as faq}
             <div class="faq-item" >
                 <div class="faq-icon">
@@ -40,7 +40,7 @@
     .faq-list {
         max-width: 1000px;
         margin: 0 auto;
-        padding: 0 24px;
+        padding: 15px 24px;
         display: grid;
         gap: 48px;
     }

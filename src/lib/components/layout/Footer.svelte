@@ -14,20 +14,7 @@
                 </a>
                 <p class="footer-description">
                     Your privacy is our priority. We provide temporary email services to keep you safe from spam.
-                </p>
-                <div class="social-links">
-                    {#each FOOTER_CONFIG.social as link}
-                        <a 
-                            href={link.href} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            class="social-link"
-                            aria-label={`Follow us on ${link.name}`}
-                        >
-                            <i class="bi {link.icon}"></i>
-                        </a>
-                    {/each}
-                </div>
+                </p> 
             </div>
 
             <div class="footer-links">

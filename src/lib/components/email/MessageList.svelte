@@ -285,7 +285,6 @@
                     class:unread={!message.is_read}
                     class:demo={!$emailStore.currentEmail && index < 2}
                     class:blurred={!$emailStore.currentEmail && index >= 2}
-                    on:click={() => handleMessageClick(message)}
                 >
                     <label class="checkbox-wrapper" on:click|stopPropagation>
                         <input 
@@ -307,8 +306,8 @@
                             <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'} star-icon"></i>
                         {/if}
                     </button>
- 
-                    <div class="message-avatar">
+                     
+                    <div class="message-avatar" on:click={() => handleMessageClick(message)}>
                         <div 
                             class="avatar-letter" 
                             style="background: {$themeStore === 'dark' ? 'var(--bg-tertiary)' : message.avatarColor || '#E8FFF3'}; 
@@ -317,16 +316,14 @@
                             {message.from?.name?.[0] || message.name?.[0] || 'U'}
                         </div>
                     </div>
-                    <div class="message-content">
-                        <div class="message-name" class:unread={!message.is_read}>
-                            {message.from?.name || message.name}
+                    <div class="message-content" on:click={() => handleMessageClick(message)}>
+                        <div class="message-info">
+                            <div class="message-name">{message.from.name}</div>
                         </div>
-                        <div class="message-subject" class:unread={!message.is_read}>
-                            {message.subject}
+                        <div class="message-subject">{message.subject}</div>
+                        <div class="message-meta">
+                            <span class="message-time">{formatMessageTime(message.date)}</span>
                         </div>
-                    </div>
-                    <div class="message-time">
-                        {message.time || formatMessageTime(message.date)}
                     </div>
                 </div>
             {/each}
@@ -590,16 +587,32 @@
 
     .message-content {
         flex: 1;
-        display: flex;
-        gap: 20%;
+        display: grid;
+        grid-template-columns: 120px 1fr 200px;
+        gap: 4px;
         min-width: 0;
+        align-items: center;
+    }
+
+    .message-info {
+        min-width: 0;
+    }
+
+    .message-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+        justify-content: flex-end;
     }
 
     .message-name {
         font-weight: 600;
         color: var(--text-primary);
         font-size: 14px;
-        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .message-subject {
@@ -608,6 +621,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: center;
     }
 
     .message-labels {
@@ -753,9 +767,8 @@
 
     .tooltip-container {
         position: relative;
-        display: inline-block;
     }
- 
+
     .tooltip {
         visibility: hidden;
         width: max-content;
@@ -770,11 +783,12 @@
         left: 110%;
         transform: translateY(-50%);
         opacity: 0;
-        transition: opacity 0.3s, visibility 0.3s;
+        transition: opacity 0.15s;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         border: 1px solid #ddd;
+        pointer-events: none;
     }
- 
+
     .tooltip-container:hover .tooltip {
         visibility: visible;
         opacity: 1;
@@ -984,7 +998,14 @@
         }
 
         .message-content {
-            max-width: calc(100% - 100px);
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+        }
+
+        .message-subject {
+            text-align: left;
+            grid-column: 1 / -1;
+            order: 2;
         }
 
         .pagination-container {

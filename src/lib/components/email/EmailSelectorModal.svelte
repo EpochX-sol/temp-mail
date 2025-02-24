@@ -70,7 +70,7 @@
                                 {/if}
                             </div>
                         </div>
-                        <i class="bi bi-check check-icon"></i>
+                        <i class="bi bi-check-circle-fill check-icon"></i>
                     </button>
                 {/each}
             </div>
@@ -132,6 +132,7 @@
 
     .email-item.active { 
         border-color: var(--primary);
+        background: var(--bg-tertiary);
     }
 
     .email-info {
@@ -152,11 +153,7 @@
         font-size: 1.5rem;
     }
 
-    .email-item.active .email-icon {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
+ 
     .email-details {
         display: flex;
         flex-direction: column;
@@ -170,7 +167,7 @@
     }
 
     .email-item.active .email-address {
-        color: white;
+        color: var(--text-primary);
     }
 
     .status-badge {
@@ -183,20 +180,20 @@
     }
 
     .email-item.active .status-badge {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
+        background: var(--primary);
+        color: var(--bg-secondary);
     }
 
     .check-icon {
         color: var(--text-muted);
-        font-size: 2rem;
+        font-size: 1.2rem;
         opacity: 0;
         transition: all 0.2s ease;
     }
 
     .email-item.active .check-icon {
         opacity: 1;
-        color: white;
+        color: var(--primary);
     }
 
     @media (max-width: 768px) {

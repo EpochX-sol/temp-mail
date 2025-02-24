@@ -3,9 +3,10 @@
     export let show = false;
     export let title = '';
     export let onClose = () => {};
+    export let closeOnBackdrop = true;
 
     function handleBackdropClick(e) {
-        if (e.target === e.currentTarget) {
+        if (e.target === e.currentTarget && closeOnBackdrop) {
             onClose();
         }
     }

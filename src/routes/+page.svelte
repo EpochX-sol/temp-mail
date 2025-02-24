@@ -153,7 +153,7 @@
 
 <div class="page-container">
     <header class="header-section {hasEmail ? 'compact' : ''}">
-        <div class="header-content">
+        <div class="header-content {hasEmail?'':'large'}">
             <div class="hero-content">
                 <h1 class="compact-title">
                     {#if hasEmail}
@@ -570,12 +570,15 @@
         .header-content {
             padding: 0 16px;
         }
+        .large{
+            height: 500px;
+        }
         .main-container{
         top: -7px;
 
         }
         .hero-content {
-            max-width: 100%;
+            max-width: 100%; 
         }
 
         h1 {
@@ -584,7 +587,7 @@
         }
 
         .compact-title {
-            font-size: 1.4rem;
+            font-size: 1.7rem  !important;
         }
 
         .dynamic-email {
@@ -653,7 +656,7 @@
         .message-list-wrapper {
             margin-top: -40px;
             padding: 12px;
-        }
+        } 
 
         .message-list-wrapper:has(> :global(.message-detail)) {
             margin-top: -60px;

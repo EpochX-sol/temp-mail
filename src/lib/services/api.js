@@ -4,6 +4,7 @@ class ApiService {
     constructor() {
         this.requestCount = 0;
         this.lastResetTime = Date.now();
+        this.hasRedirected = false;
     }
 
     async checkRateLimit() { 
@@ -15,7 +16,10 @@ class ApiService {
 
         this.requestCount++; 
         if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) { 
-            window.location.href = '/api';
+            if (!this.hasRedirected) {
+                this.hasRedirected = true;
+                window.location.href = '/api';
+            }
             throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
         }
     }
@@ -33,7 +37,10 @@ class ApiService {
             }); 
 
             if (response.status === 429) { 
-                window.location.href = '/api?error=rate_limit';
+                if (!this.hasRedirected) {
+                    this.hasRedirected = true;
+                    window.location.href = '/api?error=rate_limit';
+                }
                 throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
             }
 
