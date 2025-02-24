@@ -70,6 +70,8 @@
         padding: 20px 24px;
         border-bottom: 1px solid var(--border-color);
         background: var(--bg-secondary);
+        position: relative;
+        z-index: 1000;
     }
 
     .modal-header h2 {

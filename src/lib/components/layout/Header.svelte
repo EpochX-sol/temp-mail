@@ -105,6 +105,7 @@
         top: 0;
         left: 0;
         z-index: 100;
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     }
 
     .header-container {
@@ -165,6 +166,8 @@
 
     .nav-link {
         font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
         color: #9ca3af;
         text-decoration: none;
         padding: 0 12px;
@@ -287,6 +290,8 @@
         color: #9ca3af;
         text-decoration: none;
         font-size: 0.95rem;
+        font-weight: 500;
+        letter-spacing: 0.2px;
         padding: 12px 16px;
         width: 100%;
         text-align: left;

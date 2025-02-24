@@ -12,6 +12,7 @@
     let customUsername = '';
     let showDomainSelect = false;
     let loading = false;
+    let isValidEmail = true;
     let errorMessage = '';
 
     $: selectedDomain = availableDomains[0] || '';
@@ -35,26 +36,60 @@
         }
     }
 
+    function validateEmail(username) {
+        isValidEmail = true;
+        errorMessage = '';
+
+        if (username.length < 4) {
+            isValidEmail = false;
+            errorMessage = 'Username must be at least 4 characters';
+            return false;
+        }
+        if (username.length > 60) {
+            isValidEmail = false;
+            errorMessage = 'Username must be less than 60 characters';
+            return false;
+        }
+
+        const validFormat = /^[a-zA-Z0-9._-]+$/.test(username);
+        if (!validFormat) {
+            isValidEmail = false;
+            errorMessage = 'Username can only contain letters, numbers, dots, underscores, and hyphens';
+            return false;
+        }
+
+        return true;
+    }
+
+    $: {
+        if (customUsername) {
+            validateEmail(customUsername);
+        } else {
+            isValidEmail = true;
+            errorMessage = '';
+        }
+    }
+
     async function handleCustomSubmit() {
-        if (customUsername && selectedDomain) {
-            if (!/^[a-zA-Z0-9.]+$/.test(customUsername)) {
-                errorMessage = 'Invalid name. Only letters, numbers, and dots are allowed.';
-                return;
-            }
-            if (emailCount >= 10) {
-                errorMessage = 'Maximum limit of 10 emails exceeded.';
-                return;
-            }
-            loading = true;
-            try {
-                await onCustomEmail(`${customUsername}@${selectedDomain}`);
-                customUsername = '';
-                errorMessage = '';
-                onClose();
-            } catch (error) {
-                console.error('Failed to create email:', error);
-            } finally {
-                loading = false;
+        const lowercaseUsername = customUsername.toLowerCase();
+        if (validateEmail(lowercaseUsername)) {
+            customUsername = lowercaseUsername;
+            if (selectedDomain) {
+                if (emailCount >= 10) {
+                    errorMessage = 'Maximum limit of 10 emails exceeded.';
+                    return;
+                }
+                loading = true;
+                try {
+                    await onCustomEmail(`${customUsername}@${selectedDomain}`);
+                    customUsername = '';
+                    errorMessage = '';
+                    onClose();
+                } catch (error) {
+                    console.error('Failed to create email:', error);
+                } finally {
+                    loading = false;
+                }
             }
         }
     }
@@ -79,10 +114,7 @@
 <svelte:window on:click={handleClickOutside}/>
 
 <Modal {show} title="Add Inbox" {onClose}>
-    <div class="create-email-container">
-        {#if errorMessage}
-            <div class="error-message">{errorMessage}</div>
-        {/if}
+    <div class="create-email-container"> 
         <div class="random-section">
             <div class="random-header">
                 <i class="bi bi-shuffle"></i>
@@ -117,7 +149,11 @@
                     bind:value={customUsername}
                     placeholder="Enter username"
                     class="custom-input"
+                    class:invalid={!isValidEmail}
                 >
+                {#if errorMessage}
+                    <span class="error-hint">{errorMessage}</span>
+                {/if}
                 <span class="separator">@</span>
                 <div class="domain-select-wrapper">
                     <button 
@@ -151,7 +187,7 @@
                 </button>
                 <button 
                     class="add-btn" 
-                    disabled={!customUsername || !selectedDomain || emailCount >= 10}
+                    disabled={!customUsername || !selectedDomain || emailCount >= 10 || !isValidEmail}
                     on:click={handleCustomSubmit}
                 >
                     Add Inbox
@@ -167,12 +203,7 @@
         flex-direction: column;
         gap: 20px;
     }
-
-    .error-message {
-        color: red;
-        text-align: center;
-        margin-bottom: 10px;
-    }
+ 
 
     .random-section {
         display: flex;
@@ -198,6 +229,7 @@
         font-size: 1.1rem;
         color: var(--text-primary);
         font-weight: 600;
+        font-family: 'Inter', sans-serif;
     }
 
      
@@ -278,30 +310,41 @@
         font-size: 1.1rem;
         color: var(--text-primary);
         font-weight: 600;
+        font-family: 'Inter', sans-serif;
     }
 
  
 
     .input-group {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
     }
 
-    .custom-input { 
+    .custom-input {
         flex: 1;
-        padding: 8px;
+        padding: 8px 12px;
         border: 1px solid var(--border-color);
         border-radius: 4px;
-        font-size: 0.95rem; 
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
         color: var(--text-primary);
         min-width: 0;
     }
 
-    .custom-input:focus {
-        outline: none;
-        border-color: var(--primary);
+    .custom-input.invalid {
+        border-color: var(--danger);
+    }
+
+    .error-hint {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        font-size: 0.8rem;
+        color: var(--danger);
+        margin-top: 4px;
     }
 
     .separator {
@@ -326,6 +369,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+        position: relative;
     }
 
     .domain-select i {
@@ -336,24 +380,23 @@
         transform: rotate(380deg);
     }
 
-    .domain-options {
-        position: absolute;
-        bottom: calc(100% + 4px);
-        left: 0;
-        right: 0;
+    .domain-options { 
+        position: fixed; 
+        top: 19%;
+        z-index: 20000;
         background: var(--bg-primary);
         border: 1px solid var(--border-color);
-        border-radius: 4px;
-        z-index: 10;
-        max-height: 150px;
-        overflow-y: auto; 
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        width: 170px;
+        max-height: 300px;
     }
 
  
     .domain-option {
         width: 100%;
-        padding: 8px 12px;
+        padding: 8px 16px;
         text-align: left;
         border: none;
         background: none;
@@ -362,7 +405,6 @@
         font-size: 0.95rem;
         display: flex;
         align-items: center;
-        z-index: 1;
     }
 
     .domain-option:hover {
@@ -387,31 +429,61 @@
         font-size: 0.95rem;
         cursor: pointer;
         transition: all 0.2s ease;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .cancel-btn {
-        background: none;
-        border: none;
-        color: var(--text-muted);
+        background: #4f5357;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
     }
 
     .add-btn {
-        background: var(--primary);
+        background: #009ef7;
         border: none;
         color: white;
+        font-weight: 500;
     }
 
     .add-btn:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+        background: #f1f5f9;
+        color: #94a3b8;
     }
 
-    .cancel-btn:hover {
-        color: var(--text-primary);
+    .cancel-btn:hover:not(:disabled) {
+        background: #e2e8f0;
+        color: #1e293b;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .add-btn:hover:not(:disabled) {
-        background: var(--primary-dark);
+        background: #014769;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+ 
+    :global([data-theme="dark"]) .cancel-btn {
+        background: #313147;
+        border-color: #2b2b40;
+        color: #92929F;
+    }
+
+    :global([data-theme="dark"]) .cancel-btn:hover:not(:disabled) {
+        background: #2b2b40;
+        color: #ffffff;
+        border-color: #565674;
+    }
+
+    :global([data-theme="dark"]) .add-btn:disabled {
+        background: #1e1e2d;
+        color: #565674;
     }
 
     @media (max-width: 768px) {
@@ -444,6 +516,7 @@
         .action-buttons {
             flex-direction: column-reverse;
             gap: 8px;
+            margin-top: 40px;
         }
 
         .cancel-btn,
@@ -453,6 +526,21 @@
             text-align: center;
             height: 42px;
             font-size: 14px;
+        }
+
+        .domain-options {
+            position: absolute;
+            bottom: 40px;
+            top: auto;
+            left: 0;
+            transform: none;
+            width: 100%;
+            max-height: 170px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .error-hint {
+            font-size: 0.75rem;
         }
     }
 

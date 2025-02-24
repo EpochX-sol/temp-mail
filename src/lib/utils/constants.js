@@ -155,6 +155,36 @@ export const UI_CONFIG = {
             question: "Is it secure?",
             answer: "We use industry-standard encryption and security measures to protect your data. We never store personal information and automatically delete all emails after 24 hours.",
             icon: "bi-lock"
+        },
+        {
+            question: "How long do emails stay in my temporary inbox?",
+            answer: "Emails are automatically deleted after 24 hours to maintain privacy and security. We recommend saving any important information before this period expires.",
+            icon: "bi-clock-history"
+        },
+        {
+            question: "Can I send emails from my temporary address?",
+            answer: "No, our service is receive-only to prevent abuse and maintain the highest level of security. You can only receive and read incoming messages.",
+            icon: "bi-envelope-x"
+        },
+        {
+            question: "Can I create multiple email addresses?",
+            answer: "Yes, you can create multiple temporary email addresses. However, there's a limit of 10 active addresses per user to ensure fair usage of our service.",
+            icon: "bi-plus-circle"
+        },
+        {
+            question: "What if I receive important emails?",
+            answer: "While our service is great for temporary use, we recommend using a permanent email address for important communications.",
+            icon: "bi-exclamation-circle"
+        },
+        {
+            question: "Are attachments supported?",
+            answer: "Yes, you can receive and view attachments. However, we scan all attachments for viruses and malware to ensure your safety.",
+            icon: "bi-paperclip"
+        },
+        {
+            question: "What about spam protection?",
+            answer: "We implement robust spam filtering to protect your temporary inbox. However, since these are disposable addresses, you can always generate a new one if needed.",
+            icon: "bi-shield-slash"
         }
     ]
 };
@@ -467,4 +497,37 @@ export const PRIVACY_POLICY = {
             ]
         }
     ],
+};
+
+export const TERMS_PAGE_CONFIG = { 
+    CONTENT: `
+        Welcome to our Temporary Email Service. By accessing or using our service, you agree to be bound by these Terms of Service. Please read these terms carefully before using our service. These terms constitute a legally binding agreement between you and our Temporary Email Service regarding your use of our email generation and management platform.
+
+        Our service provides users with temporary, disposable email addresses for privacy protection and spam prevention. The service generates random email addresses that can receive emails temporarily. These addresses are designed for short-term use and are automatically deleted after 24 hours. We offer this service to help users protect their primary email addresses from spam, unwanted subscriptions, and potential data breaches. The service includes features such as random email generation, temporary inbox access, and automatic message deletion.
+
+        When using our service, you acknowledge and agree that you will not use it for any unlawful purposes or in any way that could damage, disable, overburden, or impair our service. This includes but is not limited to: sending spam, distributing malware, attempting to gain unauthorized access to our systems, harassing others, or engaging in any fraudulent activities. You are solely responsible for all activities that occur under your temporary email addresses. We reserve the right to terminate access to any user who violates these terms or engages in suspicious activities that could harm our service or other users.
+
+        Our temporary email service is provided with certain limitations to ensure fair usage and system stability. Each user is limited to a maximum of 10 active email addresses at any given time. All emails and associated data are automatically deleted after 24 hours, and this process cannot be reversed. We do not guarantee the delivery of all emails, as various factors beyond our control may affect email delivery. The service may experience occasional downtime for maintenance or technical updates.
+
+        We take your privacy seriously and handle all data in accordance with our Privacy Policy. We do not collect or store personal information beyond what is necessary to provide our service. All email contents are automatically deleted after 24 hours, and we employ encryption to protect your data while it's in our system. We do not sell, rent, or share your information with third parties. Our service is designed to be privacy-focused, and we maintain strict security measures to protect against unauthorized access to our systems.
+
+        Our temporary email service is provided 'as is' and 'as available' without any warranties of any kind, either express or implied. We do not guarantee that the service will be uninterrupted, timely, secure, or error-free. We make no warranties regarding the reliability, accuracy, or availability of the service. You understand and agree that you use our service at your own discretion and risk.
+
+        Under no circumstances shall we be liable for any direct, indirect, incidental, special, consequential, or exemplary damages arising from your use of our service. This includes but is not limited to damages for loss of profits, goodwill, data, or other intangible losses, even if we have been advised of the possibility of such damages.
+
+        We reserve the right to modify these Terms of Service at any time. We will notify users of any material changes by posting the updated terms on our website with a new 'Last Updated' date. Your continued use of the service after such changes constitutes your acceptance of the new terms. If you do not agree with the modified terms, you should discontinue using our service.
+
+        If you have any questions about these Terms of Service, please contact us through our support channels or email us at support@tempmail.com.
+    `
+};
+
+export const SEO_CONFIG = {
+    TERMS: {
+        title: "Terms and Conditions | Temp Email",
+        description: "Terms and conditions for using our temporary email service. Read our terms of service to understand your rights and obligations.",
+        keywords: "terms and conditions, terms of service, temporary email terms, email service agreement",
+        ogTitle: "Terms and Conditions - Temp Email Service",
+        ogDescription: "Read our terms of service to understand how to use our temporary email service responsibly.",
+        ogImage: "/og-image.png"
+    },
 }; 

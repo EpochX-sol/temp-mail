@@ -56,7 +56,8 @@
                 <div class="link-group">
                     <h3>Legal</h3>
                     <ul>
-                        <li><a href="/privacy">Privacy Policy</a></li> 
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/terms">Terms & Conditions</a></li>
                     </ul>
                 </div>
             </div>

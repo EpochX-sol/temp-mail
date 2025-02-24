@@ -70,7 +70,7 @@
                                 {/if}
                             </div>
                         </div>
-                        <i class="bi bi-check-circle-fill check-icon"></i>
+                        <i class="bi bi-check check-icon"></i>
                     </button>
                 {/each}
             </div>
@@ -130,8 +130,7 @@
         transform: translateY(-1px);
     }
 
-    .email-item.active {
-        background: var(--primary);
+    .email-item.active { 
         border-color: var(--primary);
     }
 
@@ -190,7 +189,7 @@
 
     .check-icon {
         color: var(--text-muted);
-        font-size: 1.5rem;
+        font-size: 2rem;
         opacity: 0;
         transition: all 0.2s ease;
     }

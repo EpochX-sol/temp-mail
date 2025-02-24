@@ -223,11 +223,21 @@
 <Modal
     show={showDeleteConfirmModal} 
     onClose={() => showDeleteConfirmModal = false}
+    title='Delete Email'
 >
     <div class="delete-confirm-content">
          
-        <h3>Are you sure you want to delete this email account?</h3>
+        <h3 class="delete-confirm-title">Are you sure you want to delete this inbox?</h3>
+        <h4 class="delete-confirm-subtitle">You will not be able to access it or it's messages in the future.</h4>
+
         <div class="modal-actions">
+            <Button 
+                variant="danger"
+                size="sm" 
+                on:click={confirmDeleteInbox}
+            >
+                Delete Email
+            </Button>
             <Button 
                 variant="secondary"
                 size="sm"
@@ -235,14 +245,7 @@
             >
                 Cancel
             </Button>
-            <Button 
-                variant="danger"
-                size="sm"
-                icon="bi-trash"
-                on:click={confirmDeleteInbox}
-            >
-                Delete Email
-            </Button>
+            
         </div>
     </div>
 </Modal>
@@ -568,7 +571,7 @@
             padding: 0 16px;
         }
         .main-container{
-        top: -10px;
+        top: -7px;
 
         }
         .hero-content {
@@ -689,7 +692,7 @@
 
         .main-container {
             padding: 0 8px;
-            top: -30px;
+            top: -18px;
         }
 
         .dynamic-email.preview {
@@ -943,6 +946,11 @@
  
     :global([data-theme="dark"]) .email-display {
         background: var(--bg-tertiary);
+    }
+
+    .delete-confirm-title,
+    .delete-confirm-subtitle {
+        color: var(--text-primary);
     }
  
 </style>

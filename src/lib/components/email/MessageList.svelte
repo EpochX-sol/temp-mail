@@ -5,6 +5,7 @@
     import { themeStore } from '$lib/stores/themeStore';
     import { createEventDispatcher } from 'svelte';
     import { API_CONFIG, UI_CONFIG } from '$lib/utils/constants';
+    import { apiService } from '$lib/services/api';
 
     const dispatch = createEventDispatcher();
 
@@ -15,6 +16,8 @@
     let rowsPerPage = UI_CONFIG.PAGINATION.DEFAULT_ROWS_PER_PAGE;
     let totalPages = 1;
     let isRefreshing = false;
+    let isDeleting = false;
+    let isStarring = new Set();
 
     const pageSizes = UI_CONFIG.PAGINATION.PAGE_SIZES;
     const demoMessages = UI_CONFIG.DEMO_MESSAGES;
@@ -116,34 +119,76 @@
 
     async function handleSingleDelete(uid, event) {
         event.stopPropagation();
+        isDeleting = true;
+        selectedMessages.delete(uid);
+        selectedMessages = selectedMessages;
+        
         try {
             await emailStore.deleteMessage(uid);
-            selectedMessages.delete(uid);
-            selectedMessages = selectedMessages;
         } catch (error) {
             console.error('Failed to delete message:', error);
+        } finally {
+            isDeleting = false;
         }
     }
 
     async function handleDelete() {
         if (selectedMessages.size > 0) {
             const uids = Array.from(selectedMessages);
+            isDeleting = true;
+            selectedMessages.clear();
+            allSelected = false;
+            selectedMessages = selectedMessages;
+
             try {
                 await emailStore.bulkDelete(uids);
-                selectedMessages.clear();
-                allSelected = false;
             } catch (error) {
                 console.error('Failed to bulk delete messages:', error);
+            } finally {
+                isDeleting = false;
             }
         }
     }
 
     async function handleMessageClick(message) {
         dispatch('messageSelect', message);
+        
+        if (!message.is_read) {
+            try {
+                const success = await apiService.getMessage(message.uid); 
+                if (success) {
+                    const messageIndex = messages.findIndex(m => m.uid === message.uid);
+                    if (messageIndex !== -1) {
+                        messages[messageIndex].is_read = true;
+                        messages = [...messages];
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to mark message as read:', error);
+            }
+        }
     }
 
-    async function toggleStar(uid) {
-        await emailStore.toggleStar(uid);
+    async function toggleStar(uid, event) {
+        event?.stopPropagation();
+        isStarring.add(uid);
+        isStarring = isStarring;
+
+        try {
+            const success = await emailStore.toggleStar(uid);
+            if (success) {
+                const messageIndex = messages.findIndex(m => m.uid === uid);
+                if (messageIndex !== -1) {
+                    messages[messageIndex].is_starred = !messages[messageIndex].is_starred;
+                    messages = [...messages];
+                }
+            }
+        } catch (error) {
+            console.error('Failed to toggle star:', error);
+        } finally {
+            isStarring.delete(uid);
+            isStarring = isStarring;
+        }
     }
 
     async function handleRefresh() {
@@ -167,6 +212,7 @@
             return messageDate.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
         }
     }
+    console.log(messages)
 </script>
 
 <div class="message-list"> 
@@ -196,9 +242,13 @@
                 <button 
                     class="tool-btn tooltip-container" 
                     on:click={handleDelete}
-                    disabled={selectedMessages.size === 0}
+                    class:active={selectedMessages.size > 0}
                 >
-                    <i class="bi bi-trash tool-icon"></i>
+                    {#if isDeleting}
+                        <i class="bi bi-arrow-clockwise spinning tool-icon"></i>
+                    {:else}
+                        <i class="bi bi-trash tool-icon"></i>
+                    {/if}
                     <span class="tooltip">Delete</span>
                 </button>
             </div> 
@@ -249,8 +299,13 @@
                         class="star-btn tooltip-container" 
                         class:starred={message.is_starred}
                         on:click|stopPropagation={() => toggleStar(message.uid)}
+                        disabled={isStarring.has(message.uid)}
                     >
-                        <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'} star-icon"></i>
+                        {#if isStarring.has(message.uid)}
+                            <i class="bi bi-arrow-clockwise spinning star-icon"></i>
+                        {:else}
+                            <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'} star-icon"></i>
+                        {/if}
                     </button>
  
                     <div class="message-avatar">
@@ -263,8 +318,12 @@
                         </div>
                     </div>
                     <div class="message-content">
-                        <div class="message-name">{message.from?.name || message.name}</div>
-                        <div class="message-subject">{message.subject}</div>
+                        <div class="message-name" class:unread={!message.is_read}>
+                            {message.from?.name || message.name}
+                        </div>
+                        <div class="message-subject" class:unread={!message.is_read}>
+                            {message.subject}
+                        </div>
                     </div>
                     <div class="message-time">
                         {message.time || formatMessageTime(message.date)}
@@ -531,6 +590,8 @@
 
     .message-content {
         flex: 1;
+        display: flex;
+        gap: 20%;
         min-width: 0;
     }
 
@@ -735,28 +796,22 @@
         text-align: center;
     }
 
-    .message-item.unread .message-name,
-    .message-item.unread .message-subject {
-        font-weight: 700;
+    .message-name.unread,
+    .message-subject.unread {
+        font-weight: 600;
         color: var(--text-primary);
-        transition: font-weight 0.2s ease, color 0.2s ease;
     }
 
-    .message-item:not(.unread) .message-name {
+    .message-name {
         font-weight: 400;
         color: var(--text-secondary);
-        opacity: 0.8;
     }
 
-    .message-item:not(.unread) .message-subject {
+    .message-subject {
         font-weight: 400;
-        color: var(--text-muted);
-        opacity: 0.8;
+        color: var(--text-secondary);
     }
-
-    .message-item:not(.unread) .message-time {
-        opacity: 0.7;
-    }
+ 
 
     .tool-btn:disabled {
         opacity: 0.5;
@@ -789,6 +844,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        margin-left: 120px;
     }
 
     .list-title {

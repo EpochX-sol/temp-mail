@@ -93,15 +93,15 @@
         </h2>
         <div class="action-buttons">
             <button class="action-btn primary" on:click={handleAddEmail}>
-                <i class="bi bi-plus-circle"></i>
+                <i class="bi bi-plus-circle action-btn-icon"></i>
                 Add Email
             </button>
             <button class="action-btn danger" on:click={() => dispatch('deleteInbox', { email: storedEmail })}>
-                <i class="bi bi-trash"></i>
+                <i class="bi bi-trash action-btn-icon"></i>
                 Delete Email
             </button>
             <button class="action-btn" on:click={() => dispatch('showEmails')}>
-                <i class="bi bi-list"></i>
+                <i class="bi bi-list action-btn-icon"></i>
                 Your Emails
             </button>
         </div>
@@ -241,11 +241,14 @@
             flex-wrap: nowrap; 
             margin: 24px auto;
         }
-
+        .action-btn-icon{
+            display: none;
+        }
         .action-btn { 
-            min-width: 130px;
+            min-width: 120px;
             font-size: 0.7rem; 
             white-space: nowrap; 
+            justify-content: center;
 
         }
 
@@ -273,7 +276,9 @@
             font-size: 1rem;
             letter-spacing: 0.2px;
         }
-
+        .action-btn-icon{
+            display: none;
+        }
         .copy-button {
             padding: 4px;
             margin-left: 8px;
@@ -287,10 +292,11 @@
 
         .action-btn {
             flex: 0 1 auto;
-            min-width: 120px;
+            min-width: 110px;
             font-size: 0.85rem;
             padding: 8px 14px;
             white-space: nowrap; 
+            justify-content: center;
 
         }
 

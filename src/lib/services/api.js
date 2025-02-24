@@ -111,6 +111,16 @@ class ApiService {
             throw error;
         }
     }
+
+    async markAsRead(uid) {
+        try {
+            const response = await this.handleRequest(API_ENDPOINTS.READ_MESSAGE(uid));
+            return response.code === 200;
+        } catch (error) {
+            console.error('Failed to mark message as read:', error);
+            return false;
+        }
+    }
 }
 
 export const apiService = new ApiService(); 
