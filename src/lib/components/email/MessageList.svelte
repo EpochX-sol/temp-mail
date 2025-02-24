@@ -316,11 +316,11 @@
                             {message.from?.name?.[0] || message.name?.[0] || 'U'}
                         </div>
                     </div>
-                    <div class="message-content" on:click={() => handleMessageClick(message)}>
-                        <div class="message-info">
+                    <div class="message-content">
+                        <div class="message-left-content">
                             <div class="message-name">{message.from.name}</div>
+                            <div class="message-subject">{message.subject}</div>
                         </div>
-                        <div class="message-subject">{message.subject}</div>
                         <div class="message-meta">
                             <span class="message-time">{formatMessageTime(message.date)}</span>
                         </div>
@@ -587,41 +587,41 @@
 
     .message-content {
         flex: 1;
-        display: grid;
-        grid-template-columns: 120px 1fr 200px;
-        gap: 4px;
-        min-width: 0;
-        align-items: center;
-    }
-
-    .message-info {
-        min-width: 0;
-    }
-
-    .message-meta {
         display: flex;
         align-items: center;
         gap: 12px;
-        flex-shrink: 0;
-        justify-content: flex-end;
+        min-width: 0;
+    }
+
+    .message-left-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
     }
 
     .message-name {
-        font-weight: 600;
-        color: var(--text-primary);
-        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 200px;
+        max-width: 200px;
+        margin-right: 48px;
+    }
+
+    .message-subject {
+        flex: 1;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    .message-subject {
-        color: var(--text-secondary);
-        font-size: 13px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-align: center;
+    .message-meta {
+        width: 100px;
+        text-align: right;
+        flex-shrink: 0;
     }
 
     .message-labels {
@@ -998,14 +998,40 @@
         }
 
         .message-content {
-            grid-template-columns: 1fr auto;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
             gap: 8px;
         }
 
+        .message-left-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .message-name {
+            margin-right: 0;
+            min-width: 0;
+            max-width: 100%;
+            font-size: 13px;
+        }
+
         .message-subject {
-            text-align: left;
-            grid-column: 1 / -1;
-            order: 2;
+            font-size: 12px;
+            max-width: 200px;
+        }
+
+        .message-meta {
+            width: auto;
+            flex-shrink: 0;
+            padding-left: 8px;
+        }
+
+        .message-time {
+            font-size: 12px;
         }
 
         .pagination-container {
