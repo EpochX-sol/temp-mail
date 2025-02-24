@@ -150,11 +150,10 @@
         </header>
 
         <div class="read-full-message">
-            This is a preview. 
+            Can't see message content?Read the full message by
             <button class="full-message-btn" on:click={handleFullMessageClick}>
                 Click here <i class="bi bi-arrow-right"></i>
             </button> 
-            to read the full message.
         </div>
 
         <div class="message-content">
