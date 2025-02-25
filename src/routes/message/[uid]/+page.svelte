@@ -36,13 +36,11 @@
         }
     }
 
-    onMount(async () => {
-        // Check if we have message data from navigation
+    onMount(async () => { 
         const navigationState = history.state?.navigationData;
         const uid = $page.params.uid;
 
-        if (navigationState?.message?.uid === uid) {
-            // Use existing message data if available
+        if (navigationState?.message?.uid === uid) { 
             message = navigationState.message;
             loading = false;
         } else { 

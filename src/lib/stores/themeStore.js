@@ -8,14 +8,11 @@ function createThemeStore() {
         subscribe,
         setTheme: (theme) => {
             if (!browser) return;
-            
-            // Update theme
+             
             set(theme);
-            
-            // Store preference
+             
             localStorage.setItem('theme', theme);
-            
-            // Update CSS variables
+             
             document.documentElement.setAttribute('data-theme', theme);
         },
         toggleTheme: () => {
@@ -23,8 +20,7 @@ function createThemeStore() {
             
             const current = localStorage.getItem('theme') || 'light';
             const newTheme = current === 'dark' ? 'light' : 'dark';
-            
-            // Use setTheme to ensure consistent updates
+             
             themeStore.setTheme(newTheme);
         }
     };

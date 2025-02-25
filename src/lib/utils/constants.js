@@ -530,4 +530,6 @@ export const SEO_CONFIG = {
         ogDescription: "Read our terms of service to understand how to use our temporary email service responsibly.",
         ogImage: "/og-image.png"
     },
-}; 
+};
+
+export const BASE_URL = 'https://yourdomain.com'; // Replace with your actual domain 

@@ -1,5 +1,6 @@
 <script>
-    import { ABOUT_PAGE_CONFIG } from '$lib/utils/constants';
+    export let data; 
+    const ABOUT_PAGE_CONFIG = data.about;
     import SEO from '$lib/components/common/SEO.svelte';
 </script>
 

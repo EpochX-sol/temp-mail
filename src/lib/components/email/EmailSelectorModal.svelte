@@ -38,6 +38,20 @@
         onClose();
     }
 
+    function truncateEmail(email, maxLength = 20) {
+        if (email.length <= maxLength) return email;
+        const atIndex = email.indexOf('@');
+        if (atIndex === -1) return email;
+        
+        const name = email.substring(0, atIndex);
+        const domain = email.substring(atIndex);
+        
+        const nameLength = Math.floor((maxLength - 3) / 2);
+        const start = name.substring(0, nameLength);
+        const end = name.substring(name.length - nameLength);
+        
+        return `${start}...${end}${domain}`;
+    }
 
 </script>
 
@@ -64,7 +78,7 @@
                                 <i class="bi bi-envelope-fill"></i>
                             </div>
                             <div class="email-details">
-                                <span class="email-address">{email}</span>
+                                <span class="email-address">{truncateEmail(email)}</span>
                                 {#if email === currentEmail}
                                     <span class="status-badge">Active</span>
                                 {/if}

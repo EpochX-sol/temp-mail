@@ -105,4 +105,8 @@
         -moz-osx-font-smoothing: grayscale;
         background-color: var(--bg-page);
     }
-</style> 
+</style>
+
+<svelte:head>
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+</svelte:head> 

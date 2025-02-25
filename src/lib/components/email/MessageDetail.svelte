@@ -406,8 +406,7 @@
 
     .read-full-message {
         text-align: center;
-        padding: 8px;
-        margin: 16px 0;  
+        padding: 8px;   
         color: black;
         font-size: 15px;
         background: linear-gradient(135deg, rgb(238, 229, 229) 0%, rgb(223, 212, 212) 50%, rgb(247, 231, 231) 100%);

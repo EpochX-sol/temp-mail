@@ -1,11 +1,7 @@
-import { SEO_CONFIG } from '$lib/utils/seo';
+import { API_PAGE_CONFIG } from '$lib/utils/constants';
 
-export async function load() {
+export function load() {
     return {
-        seo: SEO_CONFIG.PAGES.API,
-        preloadedData: { 
-            lastUpdated: new Date().toISOString(),
-            apiVersion: "1.0.0"
-        }
+        api: API_PAGE_CONFIG
     };
 } 
