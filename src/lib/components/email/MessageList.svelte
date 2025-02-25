@@ -319,15 +319,16 @@
                                 class="avatar-letter" 
                                 style="background: {$themeStore === 'dark' ? 'var(--bg-tertiary)' : message.avatarColor || '#E8FFF3'}; 
                                        color: {$themeStore === 'dark' ? 'var(--text-primary)' : message.avatarTextColor || '#50CD89'}"
+                                       on:click={() => handleMessageClick(message)}
                             >
                                 {message.from?.name?.[0] || message.name?.[0] || 'U'}
                             </div>
                         </div>
-                        <div class="message-left-content">
+                        <div class="message-left-content"  on:click={() => handleMessageClick(message)}>
                             <div class="message-name">{message.from.name}</div>
                             <div class="message-subject">{message.subject}</div>
                         </div>
-                        <div class="message-meta">
+                        <div class="message-meta"  on:click={() => handleMessageClick(message)}>
                             <span class="message-time">{formatMessageTime(message.date)}</span>
                         </div>
                     </div>
