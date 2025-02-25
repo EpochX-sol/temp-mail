@@ -156,7 +156,6 @@
  
     .email-details {
         display: flex;
-        flex-direction: column;
         gap: 4px;
     }
 
@@ -207,7 +206,10 @@
             height: 24px;
             font-size: 1.4rem;
         }
+        .email-details{
 
+        flex-direction: column;
+        }
         .email-address {
             font-size: 1rem;
         }

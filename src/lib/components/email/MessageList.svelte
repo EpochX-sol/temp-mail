@@ -18,6 +18,7 @@
     let isRefreshing = false;
     let isDeleting = false;
     let isStarring = new Set();
+    let errorMessage = '';
 
     const pageSizes = UI_CONFIG.PAGINATION.PAGE_SIZES;
     const demoMessages = UI_CONFIG.DEMO_MESSAGES;
@@ -91,6 +92,7 @@
             console.error('Failed to load page size preference:', error);
         }
         const cleanup = emailStore.startPolling();
+        fetchMessages();
         return () => {
             cleanup();
         };
@@ -212,8 +214,23 @@
             return messageDate.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
         }
     }
-    console.log(messages)
+
+    async function fetchMessages() {
+        try {
+            await apiService.getInboxMessages($emailStore.currentEmail);
+        } catch (error) {
+            if (error.message.includes('Rate limit exceeded')) {
+                errorMessage = 'You have reached the rate limit. Please try again later.';
+            } else {
+                errorMessage = 'An error occurred while fetching messages.';
+            }
+        }
+    }
 </script>
+
+{#if errorMessage}
+    <div class="error-message">{errorMessage}</div>
+{/if}
 
 <div class="message-list"> 
     <div class="toolbar">
@@ -285,6 +302,7 @@
                     class:unread={!message.is_read}
                     class:demo={!$emailStore.currentEmail && index < 2}
                     class:blurred={!$emailStore.currentEmail && index >= 2}
+                     on:click={() => handleMessageClick(message)}
                 >
                     <label class="checkbox-wrapper" on:click|stopPropagation>
                         <input 
@@ -307,7 +325,7 @@
                         {/if}
                     </button>
                      
-                    <div class="message-avatar" on:click={() => handleMessageClick(message)}>
+                    <div class="message-avatar">
                         <div 
                             class="avatar-letter" 
                             style="background: {$themeStore === 'dark' ? 'var(--bg-tertiary)' : message.avatarColor || '#E8FFF3'}; 
@@ -1203,6 +1221,15 @@
 
     .tool-btn.active .tool-icon {
         color: var(--primary);  
+    }
+
+    .error-message {
+        color: var(--danger);
+        background: var(--bg-danger);
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
     }
 
 </style>

@@ -4,9 +4,9 @@
     const faqs = UI_CONFIG.FAQS; 
 </script>
 
-<section class="faq-section" >
+<section class="faq-section" id="faq">
     <h2 class="section-title" >Frequently Asked Questions</h2>
-    <div class="faq-list "id="faq">
+    <div class="faq-list">
         {#each faqs as faq}
             <div class="faq-item" >
                 <div class="faq-icon">
@@ -24,8 +24,7 @@
 <style>
     .faq-section {
         padding: 100px 0;
-        background: var(--bg-page);
-        scroll-margin-top: 100px;
+        background: var(--bg-page); 
     }
 
     .section-title {

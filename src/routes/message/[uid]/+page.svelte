@@ -162,65 +162,6 @@
         margin: 0;
     }
 
-    .message-header {
-        padding: 24px;
-        border-bottom: 1px solid var(--border-color);
-        background: var(--bg-secondary);
-    }
-
-    .message-subject {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 16px 0;
-        line-height: 1.3;
-    }
-
-    .message-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .sender-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-        font-size: 1.2rem;
-    }
-
-    .sender-details {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .sender-name, .sender-email {
-        color: var(--text-primary);
-        font-weight: 500;
-    }
-
-    .sender-email {
-        font-weight: normal;
-        margin-left: 4px;
-    }
-
-    .message-date {
-        color: var(--text-primary);
-        font-size: 0.9rem;
-    }
-
     .message-content { 
         width: 100%;
         max-width: 100%;
@@ -248,39 +189,6 @@
             width: 100%;
         }
 
-        .message-header {
-            padding: 16px;
-        }
-
-        .message-subject {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-        }
-
-        .sender-info {
-            gap: 8px;
-        }
-
-        .avatar {
-            width: 32px;
-            height: 32px;
-            font-size: 1rem;
-        }
-
-        .sender-name {
-            font-size: 0.9rem;
-        }
-
-        .sender-email {
-            display: block;
-            margin: 2px 0 0 0;
-            font-size: 0.8rem;
-        }
-
-        .message-date {
-            font-size: 0.8rem;
-        }
-
         .message-content {
             padding: 16px;
         }
@@ -296,32 +204,6 @@
         .message-detail{
             max-width: 100%;
 
-        }
-        .message-header {
-            padding: 12px;
-        }
-
-        .message-subject {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-
-        .avatar {
-            width: 28px;
-            height: 28px;
-            font-size: 0.9rem;
-        }
-
-        .sender-name {
-            font-size: 0.85rem;
-        }
-
-        .sender-email {
-            font-size: 0.75rem;
-        }
-
-        .message-date {
-            font-size: 0.75rem;
         }
 
         .message-content {

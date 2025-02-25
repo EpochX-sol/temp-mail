@@ -20,13 +20,7 @@
         <div class="header-content">
             <h1>{API_PAGE_CONFIG.TEXTS.TITLE}</h1>
             <p class="subtitle">{API_PAGE_CONFIG.TEXTS.SUBTITLE}</p>
-            
-            {#if showRateLimitError}
-                <div class="rate-limit-alert" transition:fade>
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <p>{API_PAGE_CONFIG.TEXTS.RATE_LIMIT_ERROR}</p>
-                </div>
-            {/if}
+ 
         </div>
     </header>
 
@@ -240,32 +234,7 @@
             padding: 16px;
         }
     }
-
-    .rate-limit-alert {
-        margin-top: 1rem;
-        padding: 1rem; 
-        border: 1px solid #ffeeba;
-        border-radius: 6px;
-        color: #856404;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .rate-limit-alert i {
-        font-size: 1.25rem;
-    }
-
-    .rate-limit-alert p {
-        margin: 0;
-        font-size: 0.95rem;
-    }
-
-    :global(.dark) .rate-limit-alert {
-        background-color: #382d06;
-        border-color: #665c2c;
-        color: #ffd970;
-    }
+ 
 
     .how-it-works {
         margin-top: 30px;

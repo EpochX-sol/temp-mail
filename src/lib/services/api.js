@@ -37,10 +37,6 @@ class ApiService {
             }); 
 
             if (response.status === 429) { 
-                if (!this.hasRedirected) {
-                    this.hasRedirected = true;
-                    window.location.href = '/api?error=rate_limit';
-                }
                 throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
             }
 

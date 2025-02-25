@@ -15,6 +15,7 @@
     import Stats from '$lib/components/common/Stats.svelte';
     import CreateEmailModal from '$lib/components/email/CreateEmailModal.svelte';
     import Button from '$lib/components/common/Button.svelte';
+    import DeleteConfirmModal from '$lib/components/email/DeleteConfirmModal.svelte';
 
     let hasEmail = false;
     let loading = false;
@@ -102,20 +103,15 @@
     }
 
     async function confirmDeleteInbox() {
-        try {
-            await emailStore.deleteInbox(emailToDelete);
-            showDeleteConfirmModal = false;
-            const remainingEmails = storageService.getEmails();
-            if (remainingEmails.length === 0) {
-                hasEmail = false;
-                storedEmail = '';
-                selectedMessage = null;
-            } else {
-                storedEmail = remainingEmails[0];
-                hasEmail = true;
-            }
-        } catch (error) {
-            console.error('Failed to delete inbox:', error);
+        await emailStore.deleteInbox(emailToDelete);
+        const remainingEmails = storageService.getEmails();
+        if (remainingEmails.length === 0) {
+            hasEmail = false;
+            storedEmail = '';
+            selectedMessage = null;
+        } else {
+            storedEmail = remainingEmails[0];
+            hasEmail = true;
         }
     }
 
@@ -220,35 +216,12 @@
     onClose={() => showEmailSelectorModal = false}
 />
 
-<Modal
-    show={showDeleteConfirmModal} 
+<DeleteConfirmModal
+    show={showDeleteConfirmModal}
     onClose={() => showDeleteConfirmModal = false}
-    title='Delete Email'
->
-    <div class="delete-confirm-content">
-         
-        <h3 class="delete-confirm-title">Are you sure you want to delete this inbox?</h3>
-        <h4 class="delete-confirm-subtitle">You will not be able to access it or it's messages in the future.</h4>
-
-        <div class="modal-actions">
-            <Button 
-                variant="danger"
-                size="sm" 
-                on:click={confirmDeleteInbox}
-            >
-                Delete Email
-            </Button>
-            <Button 
-                variant="secondary"
-                size="sm"
-                on:click={() => showDeleteConfirmModal = false}
-            >
-                Cancel
-            </Button>
-            
-        </div>
-    </div>
-</Modal>
+    onConfirm={confirmDeleteInbox}
+    emailToDelete={emailToDelete}
+/>
 
 <style>
     .page-container {
