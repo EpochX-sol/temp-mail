@@ -38,19 +38,18 @@
         onClose();
     }
 
-    function truncateEmail(email, maxLength = 20) {
+    function truncateEmail(email, maxLength = 28) {
         if (email.length <= maxLength) return email;
         const atIndex = email.indexOf('@');
         if (atIndex === -1) return email;
         
-        const name = email.substring(0, atIndex);
         const domain = email.substring(atIndex);
+        const name = email.substring(0, atIndex);
         
-        const nameLength = Math.floor((maxLength - 3) / 2);
-        const start = name.substring(0, nameLength);
-        const end = name.substring(name.length - nameLength);
+        const availableLength = maxLength - domain.length - 3;
+        const truncatedName = name.substring(0, availableLength);
         
-        return `${start}...${end}${domain}`;
+        return `${truncatedName}...${domain}`;
     }
 
 </script>

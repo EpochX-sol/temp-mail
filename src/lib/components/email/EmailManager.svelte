@@ -15,22 +15,25 @@
     let restartTimeout;
     let errorMessage = '';
 
-    function truncateEmail(email, maxLength = 20) {
+    function truncateEmail(email, maxLength = 24) {
         if (email.length <= maxLength) return email;
         const atIndex = email.indexOf('@');
         if (atIndex === -1) return email;
         
-        const name = email.substring(0, atIndex);
         const domain = email.substring(atIndex);
+        const name = email.substring(0, atIndex);
         
-        const nameLength = Math.floor((maxLength - 3) / 2);
-        const start = name.substring(0, nameLength);
-        const end = name.substring(name.length - nameLength);
+        const maxUsernameLength = 12;
+        if (name.length > maxUsernameLength) {
+            return `${name.substring(0, maxUsernameLength)}...${domain}`;
+        }
         
-        return `${start}...${end}${domain}`;
+        return email;
     }
 
-    $: displayEmail = hasEmail ? truncateEmail(storedEmail) : truncateEmail(generatedEmail);
+    $: displayEmail = hasEmail ? 
+        truncateEmail(storedEmail, 32) : 
+        truncateEmail(generatedEmail, 32);
 
     onMount(() => {
         if (!hasEmail) {
@@ -72,7 +75,7 @@
     }
 
     function copyEmail() {
-        navigator.clipboard.writeText(displayEmail).then(() => {
+        navigator.clipboard.writeText(hasEmail ? storedEmail : generatedEmail).then(() => {
             isCopied = true;
             setTimeout(() => isCopied = false, UI_CONFIG.ANIMATION.COPY_FEEDBACK_DURATION);
         });
@@ -93,7 +96,7 @@
     {/if}
     {#if hasEmail}
         <h2 class="dynamic-email">
-            <span class="email-display" title={storedEmail}>{displayEmail}</span>
+            <span class="email-display" title={hasEmail ? storedEmail : generatedEmail}>{displayEmail}</span>
             <button 
                 class="copy-button" 
                 on:click={copyEmail}
@@ -160,11 +163,15 @@
     }
 
     .email-display {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         font-weight: 600;
         letter-spacing: 0.5px;
         color: #ffffff;
         text-align: center;
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .dynamic-email.preview .email-display {
@@ -275,6 +282,7 @@
         .email-display {
             font-size: 1rem;
             letter-spacing: 0.3px;
+            max-width: 280px;
         }
 
         .dynamic-email.preview .email-display {
