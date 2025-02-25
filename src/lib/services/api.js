@@ -16,11 +16,17 @@ class ApiService {
 
         this.requestCount++; 
         if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) { 
-            if (!this.hasRedirected) {
-                this.hasRedirected = true;
-                window.location.href = '/api';
-            }
+            this.requestCount = 0;
+            this.lastResetTime = now;
+            this.redirectToApiPage('rate_limit');
             throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
+        }
+    }
+
+    redirectToApiPage(errorType) {
+        if (!this.hasRedirected) {
+            this.hasRedirected = true;
+            window.location.href = errorType ? `/api?error=${errorType}` : '/api';
         }
     }
 
@@ -37,6 +43,9 @@ class ApiService {
             }); 
 
             if (response.status === 429) { 
+                this.requestCount = 0;
+                this.lastResetTime = Date.now();
+                this.redirectToApiPage('rate_limit');
                 throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
             }
 

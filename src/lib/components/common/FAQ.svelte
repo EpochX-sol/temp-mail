@@ -23,7 +23,7 @@
 
 <style>
     .faq-section {
-        padding: 100px 0;
+        padding: 30px 0;
         background: var(--bg-page); 
     }
 
@@ -31,7 +31,7 @@
         color: var(--text-primary);
         font-size: 2.5rem;
         font-weight: 700;
-        margin-bottom: 4rem;
+        margin-bottom: 2rem;
         text-align: center;
         letter-spacing: -0.5px;
     }

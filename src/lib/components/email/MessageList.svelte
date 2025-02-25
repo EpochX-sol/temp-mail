@@ -215,17 +215,7 @@
         }
     }
 
-    async function fetchMessages() {
-        try {
-            await apiService.getInboxMessages($emailStore.currentEmail);
-        } catch (error) {
-            if (error.message.includes('Rate limit exceeded')) {
-                errorMessage = 'You have reached the rate limit. Please try again later.';
-            } else {
-                errorMessage = 'An error occurred while fetching messages.';
-            }
-        }
-    }
+ 
 </script>
 
 {#if errorMessage}
@@ -302,7 +292,6 @@
                     class:unread={!message.is_read}
                     class:demo={!$emailStore.currentEmail && index < 2}
                     class:blurred={!$emailStore.currentEmail && index >= 2}
-                     on:click={() => handleMessageClick(message)}
                 >
                     <label class="checkbox-wrapper" on:click|stopPropagation>
                         <input 
@@ -324,17 +313,16 @@
                             <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'} star-icon"></i>
                         {/if}
                     </button>
-                     
-                    <div class="message-avatar">
-                        <div 
-                            class="avatar-letter" 
-                            style="background: {$themeStore === 'dark' ? 'var(--bg-tertiary)' : message.avatarColor || '#E8FFF3'}; 
-                                   color: {$themeStore === 'dark' ? 'var(--text-primary)' : message.avatarTextColor || '#50CD89'}"
-                        >
-                            {message.from?.name?.[0] || message.name?.[0] || 'U'}
+                    <div class="message-content" on:click={() => handleMessageClick(message)}>
+                        <div class="message-avatar">
+                            <div 
+                                class="avatar-letter" 
+                                style="background: {$themeStore === 'dark' ? 'var(--bg-tertiary)' : message.avatarColor || '#E8FFF3'}; 
+                                       color: {$themeStore === 'dark' ? 'var(--text-primary)' : message.avatarTextColor || '#50CD89'}"
+                            >
+                                {message.from?.name?.[0] || message.name?.[0] || 'U'}
+                            </div>
                         </div>
-                    </div>
-                    <div class="message-content">
                         <div class="message-left-content">
                             <div class="message-name">{message.from.name}</div>
                             <div class="message-subject">{message.subject}</div>
@@ -442,7 +430,10 @@
     .toolbar-right {
         flex: 0 0 auto;
     }
-
+    .main-container{
+        display: flex;
+        gap: 5px;
+    }
     .tool-btn {
         background: none;
         border: none;
@@ -609,13 +600,14 @@
         align-items: center;
         gap: 12px;
         min-width: 0;
+        cursor: pointer;
     }
 
     .message-left-content {
-        display: flex;
-        align-items: center;
-        gap: 12px;
         flex: 1;
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
         min-width: 0;
     }
 
@@ -637,9 +629,8 @@
     }
 
     .message-meta {
-        width: 100px;
-        text-align: right;
         flex-shrink: 0;
+        margin-left: auto;
     }
 
     .message-labels {
@@ -1016,18 +1007,18 @@
         }
 
         .message-content {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-start;
-            width: 100%;
+            flex: 1;
             gap: 8px;
         }
 
         .message-left-content {
+            flex: 1;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
+            gap: 2px;
+        }
+
+        .message-meta {
+            padding-left: 8px;
         }
 
         .message-name {
@@ -1045,7 +1036,6 @@
         .message-meta {
             width: auto;
             flex-shrink: 0;
-            padding-left: 8px;
         }
 
         .message-time {
