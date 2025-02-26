@@ -95,8 +95,9 @@
         } catch (error) {
             console.error('Failed to load page size preference:', error);
         }
+        
         const cleanup = emailStore.startPolling();
-        fetchMessages();
+        
         return () => {
             cleanup();
         };
@@ -1123,6 +1124,7 @@
         .checkbox-wrapper {
             width: 20px;
             height: 20px;
+            top: -3px;
         }
 
         .checkmark {
