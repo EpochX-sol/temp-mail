@@ -5,6 +5,8 @@ class ApiService {
         this.requestCount = 0;
         this.lastResetTime = Date.now();
         this.hasRedirected = false;
+        this.lastRefreshTime = 0;
+        this.minRefreshInterval = 10000; // Minimum 10 seconds between refreshes
     }
 
     async checkRateLimit() { 
@@ -15,10 +17,14 @@ class ApiService {
         }
 
         this.requestCount++; 
-        if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) { 
+        if (this.requestCount >= API_CONFIG.RATE_LIMIT_THRESHOLD) {
             this.requestCount = 0;
             this.lastResetTime = now;
-            this.redirectToApiPage('rate_limit');
+             
+            if (!sessionStorage.getItem('rateLimitRedirect')) {
+                sessionStorage.setItem('rateLimitRedirect', 'true');
+                window.location.href = '/api';
+            }
             throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
         }
     }
@@ -26,11 +32,19 @@ class ApiService {
     redirectToApiPage(errorType) {
         if (!this.hasRedirected) {
             this.hasRedirected = true;
-            window.location.href = errorType ? `/api?error=${errorType}` : '/api';
+            window.location.href = errorType ? `/api` : '/api';
         }
     }
 
-    async handleRequest(endpoint, options = {}) { 
+    async handleRequest(endpoint, options = {}) {  
+        if (endpoint.includes('/inbox/messages')) {
+            const now = Date.now();
+            if (now - this.lastRefreshTime < this.minRefreshInterval) { 
+                return Promise.reject(new Error('Refresh too frequent'));
+            }
+            this.lastRefreshTime = now;
+        }
+
         await this.checkRateLimit();
 
         try {
@@ -44,8 +58,11 @@ class ApiService {
 
             if (response.status === 429) { 
                 this.requestCount = 0;
-                this.lastResetTime = Date.now();
-                this.redirectToApiPage('rate_limit');
+                this.lastResetTime = Date.now(); 
+                if (!sessionStorage.getItem('rateLimitRedirect')) {
+                    sessionStorage.setItem('rateLimitRedirect', 'true');
+                    window.location.href = '/api?error=rate_limit';
+                }
                 throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
             }
 

@@ -19,6 +19,7 @@
     let isDeleting = false;
     let isStarring = new Set();
     let errorMessage = '';
+    let isRefreshDisabled = false;
 
     const pageSizes = UI_CONFIG.PAGINATION.PAGE_SIZES;
     const demoMessages = UI_CONFIG.DEMO_MESSAGES;
@@ -79,24 +80,63 @@
         }
     }
 
-    onMount(() => {
-        try {
-            const savedSize = localStorage.getItem('preferredPageSize');
-            if (savedSize) {
-                const size = parseInt(savedSize);
-                if (pageSizes.find(p => p.value === size)) {
-                    rowsPerPage = size;
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load page size preference:', error);
+    let pollingInterval;
+    let isVisible = true;
+
+    function handleVisibilityChange() {
+        if (document.hidden) {
+            clearInterval(pollingInterval);
+        } else if ($emailStore.currentEmail) {
+            startPolling();
         }
-        const cleanup = emailStore.startPolling();
-        fetchMessages();
+    }
+
+    function startPolling() {
+        if (pollingInterval) clearInterval(pollingInterval);
+        
+        pollingInterval = setInterval(async () => {
+            if ($emailStore.currentEmail && !document.hidden && isVisible) {
+                await emailStore.refreshMessages(false);
+            }
+        }, 30000);
+    }
+
+    onMount(() => {
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        if ($emailStore.currentEmail) {
+            emailStore.refreshMessages(true);
+            startPolling();
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                isVisible = entries[0].isIntersecting;
+                if (!isVisible) {
+                    clearInterval(pollingInterval);
+                } else if ($emailStore.currentEmail) {
+                    startPolling();
+                }
+            },
+            { threshold: 0 }
+        );
+
+        observer.observe(document.querySelector('.message-list'));
+
         return () => {
-            cleanup();
+            clearInterval(pollingInterval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            observer.disconnect();
         };
     });
+
+    $: if ($emailStore.currentEmail) {
+        if (isVisible && !document.hidden) {
+            startPolling();
+        }
+    } else {
+        clearInterval(pollingInterval);
+    }
 
     function handleSelectMessage(uid) {
         if (selectedMessages.has(uid)) {
@@ -194,12 +234,16 @@
     }
 
     async function handleRefresh() {
-        if ($emailStore.currentEmail) {
+        if ($emailStore.currentEmail && !isRefreshDisabled) {
             isRefreshing = true;
+            isRefreshDisabled = true;
+            
             await emailStore.refreshMessages(true);
+            
             setTimeout(() => {
                 isRefreshing = false;
-            }, 500);
+                isRefreshDisabled = false;
+            }, 1000);
         }
     }
 
@@ -242,7 +286,11 @@
                 <span class="tooltip">Select All</span>
             </button>
             <div class="tool-buttons">
-                <button class="tool-btn tooltip-container" on:click={handleRefresh}>
+                <button 
+                    class="tool-btn tooltip-container" 
+                    on:click={handleRefresh}
+                    disabled={isRefreshDisabled}
+                >
                     <i class="bi bi-arrow-clockwise tool-icon" class:spinning={isRefreshing}></i>
                     <span class="tooltip">Refresh</span>
                 </button>
@@ -292,6 +340,7 @@
                     class:unread={!message.is_read}
                     class:demo={!$emailStore.currentEmail && index < 2}
                     class:blurred={!$emailStore.currentEmail && index >= 2}
+                    on:click={() => handleMessageClick(message)}
                 >
                     <label class="checkbox-wrapper" on:click|stopPropagation>
                         <input 
@@ -313,22 +362,21 @@
                             <i class="bi {message.is_starred ? 'bi-star-fill' : 'bi-star'} star-icon"></i>
                         {/if}
                     </button>
-                    <div class="message-content" on:click={() => handleMessageClick(message)}>
+                    <div class="message-content">
                         <div class="message-avatar">
                             <div 
                                 class="avatar-letter" 
                                 style="background: {$themeStore === 'dark' ? 'var(--bg-tertiary)' : message.avatarColor || '#E8FFF3'}; 
                                        color: {$themeStore === 'dark' ? 'var(--text-primary)' : message.avatarTextColor || '#50CD89'}"
-                                       on:click={() => handleMessageClick(message)}
                             >
                                 {message.from?.name?.[0] || message.name?.[0] || 'U'}
                             </div>
                         </div>
-                        <div class="message-left-content"  on:click={() => handleMessageClick(message)}>
+                        <div class="message-left-content">
                             <div class="message-name">{message.from.name}</div>
                             <div class="message-subject">{message.subject}</div>
                         </div>
-                        <div class="message-meta"  on:click={() => handleMessageClick(message)}>
+                        <div class="message-meta">
                             <span class="message-time">{formatMessageTime(message.date)}</span>
                         </div>
                     </div>
@@ -840,6 +888,7 @@
     .tool-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        pointer-events: none;
     }
 
     .message-item.demo {
