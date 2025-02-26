@@ -19,6 +19,7 @@
     let isDeleting = false;
     let isStarring = new Set();
     let errorMessage = '';
+    let isRefreshDisabled = false;
 
     const pageSizes = UI_CONFIG.PAGINATION.PAGE_SIZES;
     const demoMessages = UI_CONFIG.DEMO_MESSAGES;
@@ -194,12 +195,16 @@
     }
 
     async function handleRefresh() {
-        if ($emailStore.currentEmail) {
+        if ($emailStore.currentEmail && !isRefreshDisabled) {
             isRefreshing = true;
+            isRefreshDisabled = true;
+            
             await emailStore.refreshMessages(true);
+            
             setTimeout(() => {
                 isRefreshing = false;
-            }, 500);
+                isRefreshDisabled = false;
+            }, 1000);
         }
     }
 
@@ -242,7 +247,12 @@
                 <span class="tooltip">Select All</span>
             </button>
             <div class="tool-buttons">
-                <button class="tool-btn tooltip-container" on:click={handleRefresh}>
+                <button 
+                    class="tool-btn tooltip-container" 
+                    on:click={handleRefresh}
+                    class:inactive={isRefreshDisabled}
+                    disabled={isRefreshDisabled}
+                >
                     <i class="bi bi-arrow-clockwise tool-icon" class:spinning={isRefreshing}></i>
                     <span class="tooltip">Refresh</span>
                 </button>
@@ -292,7 +302,7 @@
                     class:unread={!message.is_read}
                     class:demo={!$emailStore.currentEmail && index < 2}
                     class:blurred={!$emailStore.currentEmail && index >= 2}
-                >
+                > 
                     <label class="checkbox-wrapper" on:click|stopPropagation>
                         <input 
                             type="checkbox"
@@ -324,8 +334,8 @@
                             </div>
                         </div>
                         <div class="message-left-content">
-                            <div class="message-name">{message.from.name}</div>
-                            <div class="message-subject">{message.subject}</div>
+                            <div class="message-name" class:unread={!message.is_read}>{message.from.name}</div>
+                            <div class="message-subject" class:unread={!message.is_read}>{message.subject}</div>
                         </div>
                         <div class="message-meta">
                             <span class="message-time">{formatMessageTime(message.date)}</span>
@@ -483,7 +493,7 @@
     .message-item {
         display: flex;
         align-items: center;
-        padding: 16px 24px;
+        padding: 0 24px;
         border-bottom: 1px solid var(--border-color);
         gap: 16px;
         transition: background-color 0.2s ease, border-left 0.2s ease;
@@ -598,6 +608,7 @@
         flex: 1;
         display: flex;
         align-items: center;
+        padding: 14px; 
         gap: 12px;
         min-width: 0;
         cursor: pointer;
@@ -1220,6 +1231,12 @@
         border-radius: 5px;
         margin: 10px 0;
         text-align: center;
+    }
+
+    .tool-btn.inactive {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
     }
 
 </style>

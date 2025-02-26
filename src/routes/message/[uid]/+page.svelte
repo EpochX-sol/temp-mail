@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import { apiService } from '$lib/services/api';
     import LoadingSpinner from '$lib/components/email/LoadingSpinner.svelte';
+    import { emailStore } from '$lib/stores/emailStore';
 
     let message = null;
     let loading = true;
@@ -36,30 +37,28 @@
         }
     }
 
-    onMount(async () => { 
+    onMount(async () => {
         const navigationState = history.state?.navigationData;
         const uid = $page.params.uid;
 
-        if (navigationState?.message?.uid === uid) { 
+        if (navigationState?.message?.uid === uid) {
             message = navigationState.message;
+            if (!message.is_read) {
+                await emailStore.markAsRead(uid);
+            }
             loading = false;
-        } else { 
+        } else {
             try {
                 const response = await apiService.getMessage(uid);
                 if (response.code === 200 && response.message) {
                     message = response.message;
-                    
                     if (!message.is_read) {
-                        message = { ...message, is_read: true }; 
-                        apiService.markAsRead(uid).catch(error => {
-                            console.error('Failed to mark message as read:', error);
-                        });
+                        await emailStore.markAsRead(uid);
                     }
                 } else {
                     error = 'Message not found';
                 }
             } catch (err) {
-                console.error('Failed to fetch message:', err);
                 error = 'Failed to load message';
             } finally {
                 loading = false;

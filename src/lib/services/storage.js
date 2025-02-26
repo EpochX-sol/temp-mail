@@ -1,16 +1,26 @@
 const isBrowser = typeof window !== 'undefined';
 
-class StorageService {
-    constructor() {
-        this.EMAIL_KEY = 'emails';
-        this.THEME_KEY = 'theme_mode';
-        this.MAX_EMAILS = 10;
-    }
-
+export const storageService = {
     getEmails() {
-        const emails = localStorage.getItem(this.EMAIL_KEY);
-        return emails ? JSON.parse(emails) : [];
-    }
+        if (isBrowser) {
+            const emails = localStorage.getItem('emails');
+            return emails ? JSON.parse(emails) : [];
+        }
+        return [];
+    },
+
+    setCurrentEmail(email) {
+        if (isBrowser) {
+            localStorage.setItem('currentEmail', email);
+        }
+    },
+
+    // Make sure this method isn't being called unnecessarily
+    clearCurrentEmail() {
+        if (isBrowser) {
+            localStorage.removeItem('currentEmail');
+        }
+    },
 
     addEmail(email) {
         const emails = this.getEmails();
@@ -19,40 +29,53 @@ class StorageService {
         }
         if (!emails.includes(email)) {
             emails.push(email);
-            localStorage.setItem(this.EMAIL_KEY, JSON.stringify(emails));
+            localStorage.setItem('emails', JSON.stringify(emails));
             this.setCurrentEmail(email);
             return { success: true };
         }
         return { success: false, message: 'Email already exists.' };
-    }
-
-    setCurrentEmail(email) {
-        localStorage.setItem('currentEmail', email);
-        const emails = this.getEmails();
-        if (!emails.includes(email)) {
-            this.addEmail(email);
-        }
-    }
+    },
 
     removeEmail(email) {
         const emails = this.getEmails().filter(e => e !== email);
-        localStorage.setItem(this.EMAIL_KEY, JSON.stringify(emails));
+        localStorage.setItem('emails', JSON.stringify(emails));
         if (emails.length > 0) {
             this.setCurrentEmail(emails[0]);
         } else {
-            localStorage.removeItem('currentEmail');
+            this.clearCurrentEmail();
         }
-    }
+    },
 
     getTheme() {
         if (!isBrowser) return 'light';
-        return localStorage.getItem(this.THEME_KEY) || 'light';
-    }
+        return localStorage.getItem('theme_mode') || 'light';
+    },
 
     setTheme(theme) {
         if (!isBrowser) return;
-        localStorage.setItem(this.THEME_KEY, theme);
-    }
-}
+        localStorage.setItem('theme_mode', theme);
+    },
 
-export const storageService = new StorageService(); 
+    getDomains() {
+        if (isBrowser) {
+            const domains = localStorage.getItem('domains');
+            const timestamp = localStorage.getItem('domains_timestamp');
+            
+            if (domains && timestamp) {
+                // Check if domains are less than 1 hour old
+                const isValid = Date.now() - parseInt(timestamp) < 3600000; // 1 hour
+                if (isValid) {
+                    return JSON.parse(domains);
+                }
+            }
+        }
+        return null;
+    },
+
+    setDomains(domains) {
+        if (isBrowser) {
+            localStorage.setItem('domains', JSON.stringify(domains));
+            localStorage.setItem('domains_timestamp', Date.now().toString());
+        }
+    }
+}; 

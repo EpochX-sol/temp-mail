@@ -16,6 +16,7 @@
     import CreateEmailModal from '$lib/components/email/CreateEmailModal.svelte';
     import Button from '$lib/components/common/Button.svelte';
     import DeleteConfirmModal from '$lib/components/email/DeleteConfirmModal.svelte';
+    import EmailSelector from '$lib/components/email/EmailSelector.svelte';
 
     let hasEmail = false;
     let loading = false;
@@ -30,23 +31,47 @@
     let selectedDomain = '';
     let showCreateEmailModal = false;
 
+    onMount(() => {
+        const savedEmail = localStorage.getItem('currentEmail');
+        if (savedEmail) {
+            emailStore.setCurrentEmail(savedEmail);
+        }
+    });
+
     onMount(async () => {
         const emails = storageService.getEmails();
         hasEmail = emails.length > 0;
-        if (hasEmail) {
+        
+        // First try to get the saved email
+        const savedEmail = localStorage.getItem('currentEmail');
+        
+        if (savedEmail && emails.includes(savedEmail)) {
+            emailStore.setCurrentEmail(savedEmail);
+            storedEmail = savedEmail;
+        } else if (hasEmail) {
             const currentEmail = emails[0];
             emailStore.setCurrentEmail(currentEmail);
             storedEmail = currentEmail;
         }
-        
-        try {
-            const domains = await apiService.getDomains();
-            if (domains.code === 200 && domains.domains) {
-                availableDomains = domains.domains;
-                selectedDomain = domains.domains[0];
+
+        // Check for cached domains first
+        const cachedDomains = storageService.getDomains();
+        if (cachedDomains) {
+            availableDomains = cachedDomains;
+            selectedDomain = cachedDomains[0];
+        } else {
+            // Only fetch domains if not in cache
+            try {
+                const response = await apiService.getDomains();
+                if (response.code === 200 && response.domains) {
+                    availableDomains = response.domains;
+                    selectedDomain = response.domains[0];
+                    // Cache the domains
+                    storageService.setDomains(response.domains);
+                }
+            } catch (error) {
+                console.error('Failed to fetch domains:', error);
             }
-        } catch (error) {
-            console.error('Failed to fetch domains:', error);
         }
     });
 
@@ -193,6 +218,7 @@
                     on:back={handleBack}
                 />
             {:else}
+                <EmailSelector />
                 <MessageList 
                     on:messageSelect={handleMessageSelect}
                 />

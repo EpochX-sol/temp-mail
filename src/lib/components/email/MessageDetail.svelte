@@ -11,6 +11,7 @@
     let isDeleting = false;
     let isStarring = false;
     let iframeHeight = 600;
+    let isMarkingRead = false;
 
     async function toggleStar() {
         if (isStarring) return;
@@ -88,6 +89,19 @@
             state: { message }
         });
     }
+
+    onMount(async () => {
+        if (!message.is_read) {
+            try {
+                isMarkingRead = true;
+                await emailStore.markAsRead(message.uid);
+            } catch (error) {
+                console.error('Failed to mark message as read:', error);
+            } finally {
+                isMarkingRead = false;
+            }
+        }
+    });
 
 </script>
 

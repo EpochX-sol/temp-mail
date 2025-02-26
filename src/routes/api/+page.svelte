@@ -7,15 +7,24 @@
 
     let showRateLimitError = false;
 
-    onMount(() => {
-        const errorParam = $page.url.searchParams.get('error');
-        showRateLimitError = errorParam === 'rate_limit';
+    onMount(() => { 
+        if (typeof window !== 'undefined') {
+            showRateLimitError = sessionStorage.getItem('rateLimitError') === 'true'; 
+            sessionStorage.removeItem('rateLimitError');
+        }
     });
 </script>
 
 <SEO page="API" />
 
 <div class="api-page">
+    {#if showRateLimitError}
+        <div class="rate-limit-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {API_PAGE_CONFIG.TEXTS.RATE_LIMIT_ERROR}
+        </div>
+    {/if}
+
     <header class="api-header">
         <div class="header-content">
             <h1>{API_PAGE_CONFIG.TEXTS.TITLE}</h1>
@@ -85,7 +94,7 @@
     }
 
     .api-header {
-        padding: 60px 20px;
+        padding: 30px 20px;
         text-align: center;
     }
 
@@ -317,6 +326,32 @@
 
         .cta-section {
             padding: 32px 16px;
+        }
+    }
+
+    .rate-limit-warning {
+        background-color: #fbff001e; 
+        border: 1px solid #ffeeba;
+        padding: 16px 24px;
+        border-radius: 8px;
+        margin: 20px auto;
+        max-width: 800px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .rate-limit-warning i {
+        font-size: 1.2rem;
+        color: #856404;
+    }
+
+    @media (max-width: 768px) {
+        .rate-limit-warning {
+            margin: 16px;
+            padding: 12px 16px;
+            font-size: 0.9rem;
         }
     }
 </style>
