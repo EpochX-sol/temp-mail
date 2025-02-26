@@ -10,26 +10,12 @@
     onMount(() => {
         const errorParam = $page.url.searchParams.get('error');
         showRateLimitError = errorParam === 'rate_limit';
-         
-        if (showRateLimitError) {
-            sessionStorage.removeItem('rateLimitRedirect');
-        }
     });
 </script>
 
 <SEO page="API" />
 
 <div class="api-page">
-    {#if showRateLimitError}
-        <div class="rate-limit-warning">
-            <i class="bi bi-exclamation-circle"></i>
-            <p>You've reached the API rate limit. Take a short break or upgrade your plan for higher limits.</p>
-            <button class="close-warning" on:click={() => showRateLimitError = false}>
-                <i class="bi bi-x-lg"></i>
-            </button>
-        </div>
-    {/if}
-
     <header class="api-header">
         <div class="header-content">
             <h1>{API_PAGE_CONFIG.TEXTS.TITLE}</h1>
@@ -99,7 +85,7 @@
     }
 
     .api-header {
-        padding: 30px 20px;
+        padding: 60px 20px;
         text-align: center;
     }
 
@@ -331,61 +317,6 @@
 
         .cta-section {
             padding: 32px 16px;
-        }
-    }
-
-    .rate-limit-warning {
-        background: rgba(255, 255, 0, 0.075);
-        color: var(--text-primary);
-        padding: 0.75rem 1rem;
-        margin: 0.5rem auto;
-        margin-top: 2rem;
-        max-width: 800px;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        font-size: 0.9rem;
-    }
-
-    .rate-limit-warning i.bi-exclamation-circle {
-        color: #e74c3c;
-        font-size: 1.2rem;
-    }
-
-    .rate-limit-warning p {
-        margin: 0;
-        flex: 1;
-        line-height: 1.4;
-    }
-
-    .close-warning {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        padding: 0.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0.7;
-        transition: opacity 0.2s ease;
-    }
-
-    .close-warning:hover {
-        opacity: 1;
-    }
-
-    .close-warning i {
-        font-size: 1rem;
-    }
-
-    @media (max-width: 768px) {
-        .rate-limit-warning {
-            margin: 0.5rem;
-            font-size: 0.85rem;
         }
     }
 </style>
