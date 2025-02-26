@@ -47,10 +47,13 @@
  
     $: paginatedMessages = filteredMessages.slice(
         (currentPage - 1) * rowsPerPage,
-        Math.min(currentPage * rowsPerPage, filteredMessages.length)
+        currentPage * rowsPerPage
     );
  
-    $: pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+    $: pageNumbers = Array.from(
+        { length: totalPages }, 
+        (_, i) => i + 1
+    );
 
     function handlePageChange(page) {
         if (page >= 1 && page <= totalPages) {
@@ -62,13 +65,13 @@
 
     function handleRowsPerPageChange(event) {
         const newSize = parseInt(event.target.value);
-        if (isNaN(newSize) || !pageSizes.find(size => size.value === newSize)) {
+        if (!pageSizes.find(size => size.value === newSize)) {
             return;
         }
         
         const firstItemIndex = (currentPage - 1) * rowsPerPage;
         rowsPerPage = newSize;
-        currentPage = Math.floor(firstItemIndex / newSize) + 1;
+        currentPage = Math.max(1, Math.ceil((firstItemIndex + 1) / newSize));
         
         selectedMessages.clear();
         allSelected = false;
