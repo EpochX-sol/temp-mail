@@ -7,19 +7,21 @@ import { browser } from '$app/environment';
 const STORAGE_KEY = 'currentEmail';
 
 function createEmailStore() {
-     const savedEmail = browser ? localStorage.getItem(STORAGE_KEY) : null;
+    const savedEmail = browser ? localStorage.getItem(STORAGE_KEY) : null;
     
     const { subscribe, set, update } = writable({
         currentEmail: savedEmail,
         messages: [],
         loading: false,
-        error: null
+        error: null,
+        lastFetch: null
     });
 
     let store;
+    let currentFetch = null; // Add this to track current fetch
+
     subscribe(value => {
         store = value;
-        // Save currentEmail to localStorage whenever it changes
         if (browser && value.currentEmail) {
             localStorage.setItem(STORAGE_KEY, value.currentEmail);
         }
@@ -27,10 +29,20 @@ function createEmailStore() {
 
     async function refreshMessages(force = false) {
         if (!store.currentEmail || store.loading) return;
+        
+        // If there's already a fetch in progress, wait for it
+        if (currentFetch) {
+            await currentFetch;
+            return;
+        }
 
         update(s => ({ ...s, loading: true }));
+        
         try {
-            const response = await apiService.getInboxMessages(store.currentEmail);
+            // Store the current fetch promise
+            currentFetch = apiService.getInboxMessages(store.currentEmail);
+            const response = await currentFetch;
+            
             if (response.code === 200) {
                 update(s => ({
                     ...s,
@@ -40,20 +52,13 @@ function createEmailStore() {
                 }));
             }
         } catch (error) {
-            // Don't keep trying to refresh if we hit rate limit
-            if (error.message === 'Rate limit exceeded') {
-                update(s => ({ 
-                    ...s, 
-                    error: 'Rate limit exceeded. Please wait a moment.',
-                    loading: false
-                }));
-                return;
-            }
             update(s => ({ 
                 ...s, 
                 error: error.message,
                 loading: false 
             }));
+        } finally {
+            currentFetch = null;
         }
     }
 
@@ -78,6 +83,9 @@ function createEmailStore() {
     }
 
     async function setCurrentEmail(email) {
+        // Don't do anything if it's the same email
+        if (store.currentEmail === email) return;
+
         update(s => ({ ...s, currentEmail: email, messages: [], loading: true }));
         
         try {
