@@ -3,6 +3,7 @@
     import { goto } from '$app/navigation';
     import { createEventDispatcher } from 'svelte';
     import { apiService } from '$lib/services/api';
+    import { storageService } from '$lib/services/storage';
     import { onMount } from 'svelte';
     
     const dispatch = createEventDispatcher();
@@ -12,6 +13,11 @@
     let isStarring = false;
     let iframeHeight = 600;
     let isMarkingRead = false;
+
+    // Cache the message when it's loaded
+    $: if (message) {
+        storageService.setMessageCache(message.uid, message);
+    }
 
     async function toggleStar() {
         if (isStarring) return;

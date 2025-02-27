@@ -1,5 +1,6 @@
 import { API_CONFIG, API_ENDPOINTS } from '../utils/constants.js';
 import { warningStore } from '../stores/warningStore';
+import { storageService } from './storage';
 
 class ApiService {
     constructor() {
@@ -38,9 +39,9 @@ class ApiService {
     }
 
     async handleRequest(endpoint, options = {}) {  
-        await this.checkRateLimit();
-
         try {
+            await this.checkRateLimit();
+
             const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
                 ...options,
                 headers: {
@@ -49,13 +50,27 @@ class ApiService {
                 },
             }); 
 
+            if (response.status === 429) {
+                if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('rateLimitError', 'true');
+                    window.location.href = '/api';
+                }
+                throw new Error('Rate limit exceeded');
+            }
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json(); 
+            const data = await response.json();
             return data;
         } catch (error) {
+            console.error(`API Error (${endpoint}):`, error);
+            warningStore.set({
+                show: true,
+                message: error.message || 'An error occurred while fetching data',
+                type: 'error'
+            });
             throw error;
         }
     }
@@ -80,16 +95,51 @@ class ApiService {
             }
             return response;
         } catch (error) {
+            console.error('Failed to fetch inbox messages:', error);
+            warningStore.set({
+                show: true,
+                message: 'Failed to fetch messages. Please try again later.',
+                type: 'error'
+            });
             throw error;
         }
     }
 
     async getMessage(uid) {
-        return this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
+        try {
+            const cachedMessage = storageService.getMessageCache(uid);
+            if (cachedMessage) {
+                return { code: 200, message: cachedMessage };
+            }
+
+            const response = await this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
+            if (response.code === 200 && response.message) {
+                storageService.setMessageCache(uid, response.message);
+            }
+            return response;
+        } catch (error) {
+            console.error('Failed to fetch message:', error);
+            warningStore.set({
+                show: true,
+                message: 'Failed to load message. Please try again later.',
+                type: 'error'
+            });
+            throw error;
+        }
     }
 
     async deleteMessage(uid) {
-        return this.handleRequest(API_ENDPOINTS.DELETE_MESSAGE(uid));
+        try {
+            return await this.handleRequest(API_ENDPOINTS.DELETE_MESSAGE(uid));
+        } catch (error) {
+            console.error('Failed to delete message:', error);
+            warningStore.set({
+                show: true,
+                message: 'Failed to delete message. Please try again later.',
+                type: 'error'
+            });
+            throw error;
+        }
     }
 
     async deleteInbox(email) {
@@ -97,7 +147,17 @@ class ApiService {
     }
 
     async toggleStar(uid) {
-        return this.handleRequest(API_ENDPOINTS.STAR_MESSAGE(uid));
+        try {
+            return await this.handleRequest(API_ENDPOINTS.STAR_MESSAGE(uid));
+        } catch (error) {
+            console.error('Failed to toggle star:', error);
+            warningStore.set({
+                show: true,
+                message: 'Failed to update star status. Please try again later.',
+                type: 'error'
+            });
+            throw error;
+        }
     }
 
     async bulkDelete(uids) {
@@ -115,6 +175,12 @@ class ApiService {
             }
             return response;
         } catch (error) {
+            console.error('Failed to fetch domains:', error);
+            warningStore.set({
+                show: true,
+                message: 'Failed to load domains. Please try again later.',
+                type: 'error'
+            });
             throw error;
         }
     }

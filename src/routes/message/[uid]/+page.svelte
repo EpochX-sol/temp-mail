@@ -2,6 +2,7 @@
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import { apiService } from '$lib/services/api';
+    import { storageService } from '$lib/services/storage';
     import LoadingSpinner from '$lib/components/email/LoadingSpinner.svelte';
     import { emailStore } from '$lib/stores/emailStore';
 
@@ -41,28 +42,44 @@
         const navigationState = history.state?.navigationData;
         const uid = $page.params.uid;
 
+        // First check navigation state
         if (navigationState?.message?.uid === uid) {
             message = navigationState.message;
             if (!message.is_read) {
                 await emailStore.markAsRead(uid);
             }
             loading = false;
-        } else {
-            try {
-                const response = await apiService.getMessage(uid);
-                if (response.code === 200 && response.message) {
-                    message = response.message;
-                    if (!message.is_read) {
-                        await emailStore.markAsRead(uid);
-                    }
-                } else {
-                    error = 'Message not found';
-                }
-            } catch (err) {
-                error = 'Failed to load message';
-            } finally {
-                loading = false;
+            return;
+        }
+
+        // Then check cache
+        const cachedMessage = storageService.getMessageCache(uid);
+        if (cachedMessage) {
+            message = cachedMessage;
+            if (!message.is_read) {
+                await emailStore.markAsRead(uid);
             }
+            loading = false;
+            return;
+        }
+
+        // Finally, fetch from API if not found in cache or state
+        try {
+            const response = await apiService.getMessage(uid);
+            if (response.code === 200 && response.message) {
+                message = response.message;
+                if (!message.is_read) {
+                    await emailStore.markAsRead(uid);
+                }
+                // Cache the message
+                storageService.setMessageCache(uid, message);
+            } else {
+                error = 'Message not found';
+            }
+        } catch (err) {
+            error = 'Failed to load message';
+        } finally {
+            loading = false;
         }
     });
 

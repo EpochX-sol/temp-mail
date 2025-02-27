@@ -77,5 +77,26 @@ export const storageService = {
             localStorage.setItem('domains', JSON.stringify(domains));
             localStorage.setItem('domains_timestamp', Date.now().toString());
         }
+    },
+
+    getMessageCache(uid) {
+        if (!isBrowser) return null;
+        const cache = localStorage.getItem(`message_${uid}`);
+        const timestamp = localStorage.getItem(`message_${uid}_timestamp`);
+        
+        if (cache && timestamp) {
+            // Cache valid for 1 hour
+            const isValid = Date.now() - parseInt(timestamp) < 3600000;
+            if (isValid) {
+                return JSON.parse(cache);
+            }
+        }
+        return null;
+    },
+
+    setMessageCache(uid, message) {
+        if (!isBrowser) return;
+        localStorage.setItem(`message_${uid}`, JSON.stringify(message));
+        localStorage.setItem(`message_${uid}_timestamp`, Date.now().toString());
     }
 }; 
