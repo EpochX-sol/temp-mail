@@ -2,11 +2,10 @@
     import Modal from '$lib/components/common/Modal.svelte';
     import Button from '$lib/components/common/Button.svelte';
     import { emailStore } from '$lib/stores/emailStore';
-    import { apiService } from '$lib/services/api';
-    import { storageService } from '$lib/services/storage';
 
     export let show = false;
     export let onClose = () => {};
+    export let availableDomains = [];
     export let onRandomEmail = () => {};
     export let onCustomEmail = () => {};
     
@@ -15,40 +14,9 @@
     let loading = false;
     let isValidEmail = true;
     let errorMessage = '';
-    let availableDomains = [];
-    let loadingDomains = false;
 
     $: selectedDomain = availableDomains[0] || '';
     $: emailCount = emailStore.getAllEmails().length;
-
-    // Load domains when modal opens
-    $: if (show) {
-        loadDomains();
-    }
-
-    async function loadDomains() {
-        // First check localStorage
-        const cachedDomains = storageService.getDomains();
-        if (cachedDomains) {
-            availableDomains = cachedDomains;
-            return;
-        }
-
-        // If not in cache, fetch from API
-        loadingDomains = true;
-        try {
-            const response = await apiService.getDomains();
-            if (response.code === 200 && response.domains) {
-                availableDomains = response.domains;
-                storageService.setDomains(response.domains);
-            }
-        } catch (error) {
-            console.error('Failed to fetch domains:', error);
-            errorMessage = 'Failed to load domains. Please try again.';
-        } finally {
-            loadingDomains = false;
-        }
-    }
 
     function getRandomDomain() {
         const randomIndex = Math.floor(Math.random() * availableDomains.length);

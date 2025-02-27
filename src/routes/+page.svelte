@@ -42,6 +42,7 @@
         const emails = storageService.getEmails();
         hasEmail = emails.length > 0;
         
+        // First try to get the saved email
         const savedEmail = localStorage.getItem('currentEmail');
         
         if (savedEmail && emails.includes(savedEmail)) {
@@ -51,6 +52,26 @@
             const currentEmail = emails[0];
             emailStore.setCurrentEmail(currentEmail);
             storedEmail = currentEmail;
+        }
+
+        // Check for cached domains first
+        const cachedDomains = storageService.getDomains();
+        if (cachedDomains) {
+            availableDomains = cachedDomains;
+            selectedDomain = cachedDomains[0];
+        } else {
+            // Only fetch domains if not in cache
+            try {
+                const response = await apiService.getDomains();
+                if (response.code === 200 && response.domains) {
+                    availableDomains = response.domains;
+                    selectedDomain = response.domains[0];
+                    // Cache the domains
+                    storageService.setDomains(response.domains);
+                }
+            } catch (error) {
+                console.error('Failed to fetch domains:', error);
+            }
         }
     });
 
