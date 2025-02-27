@@ -796,11 +796,13 @@
     .tooltip {
         visibility: hidden;
         width: max-content;
-        background-color: #fff;
-        color: #333;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px 8px;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        text-align: center; 
         position: absolute;
         z-index: 1;
         top: 50%;
@@ -808,8 +810,7 @@
         transform: translateY(-50%);
         opacity: 0;
         transition: opacity 0.15s;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        border: 1px solid #ddd;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
         pointer-events: none;
     }
 

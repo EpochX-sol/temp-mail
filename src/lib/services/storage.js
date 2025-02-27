@@ -1,6 +1,18 @@
 const isBrowser = typeof window !== 'undefined';
+let subscribers = [];
 
 export const storageService = {
+    subscribe(callback) {
+        subscribers.push(callback);
+        return () => {
+            subscribers = subscribers.filter(cb => cb !== callback);
+        };
+    },
+
+    notifySubscribers() {
+        subscribers.forEach(callback => callback());
+    },
+
     getEmails() {
         if (isBrowser) {
             const emails = localStorage.getItem('emails');
@@ -31,6 +43,7 @@ export const storageService = {
             emails.push(email);
             localStorage.setItem('emails', JSON.stringify(emails));
             this.setCurrentEmail(email);
+            this.notifySubscribers();
             return { success: true };
         }
         return { success: false, message: 'Email already exists.' };
@@ -44,6 +57,7 @@ export const storageService = {
         } else {
             this.clearCurrentEmail();
         }
+        this.notifySubscribers();
     },
 
     getTheme() {

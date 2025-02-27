@@ -7,7 +7,7 @@
     import { apiService } from '$lib/services/api';
     import FAQ from '$lib/components/common/FAQ.svelte';
     import Features from '$lib/components/common/Features.svelte';
-    import { UI_CONFIG } from '$lib/utils/constants';
+    import { UI_CONFIG, MAX_EMAILS } from '$lib/utils/constants';
     import Modal from '$lib/components/common/Modal.svelte';
     import EmailSelectorModal from '$lib/components/email/EmailSelectorModal.svelte';
     import SEO from '$lib/components/common/SEO.svelte';
@@ -21,58 +21,29 @@
     let hasEmail = false;
     let loading = false;
     let emailCount = 0;
-    let storedEmail = '';
     let selectedMessage = null;
     let showEmailSelectorModal = false;
     let showDeleteConfirmModal = false;
     let emailToDelete = '';
     let customUsername = '';
-    let availableDomains = [];
-    let selectedDomain = '';
     let showCreateEmailModal = false;
+    let isLimitReached = false;
+
+    $: hasEmail = !!$emailStore.currentEmail;
+    $: {
+        emailCount = storageService.getEmails().length;
+        isLimitReached = emailCount >= MAX_EMAILS;
+    }
 
     onMount(() => {
-        const savedEmail = localStorage.getItem('currentEmail');
-        if (savedEmail) {
-            emailStore.setCurrentEmail(savedEmail);
-        }
-    });
+        const unsubscribe = storageService.subscribe(() => {
+            emailCount = storageService.getEmails().length;
+            isLimitReached = emailCount >= MAX_EMAILS;
+        });
 
-    onMount(async () => {
-        const emails = storageService.getEmails();
-        hasEmail = emails.length > 0;
-        
-        // First try to get the saved email
-        const savedEmail = localStorage.getItem('currentEmail');
-        
-        if (savedEmail && emails.includes(savedEmail)) {
-            emailStore.setCurrentEmail(savedEmail);
-            storedEmail = savedEmail;
-        } else if (hasEmail) {
-            const currentEmail = emails[0];
-            emailStore.setCurrentEmail(currentEmail);
-            storedEmail = currentEmail;
-        }
-
-        // Check for cached domains first
-        const cachedDomains = storageService.getDomains();
-        if (cachedDomains) {
-            availableDomains = cachedDomains;
-            selectedDomain = cachedDomains[0];
-        } else {
-            // Only fetch domains if not in cache
-            try {
-                const response = await apiService.getDomains();
-                if (response.code === 200 && response.domains) {
-                    availableDomains = response.domains;
-                    selectedDomain = response.domains[0];
-                    // Cache the domains
-                    storageService.setDomains(response.domains);
-                }
-            } catch (error) {
-                console.error('Failed to fetch domains:', error);
-            }
-        }
+        return () => {
+            unsubscribe();
+        };
     });
 
     function handleMessageSelect(event) {
@@ -83,21 +54,11 @@
         selectedMessage = null;
     }
 
-    $: displayEmail = hasEmail ? storedEmail : '';
-
-    $: {
-        if ($emailStore.currentEmail) {
-            storedEmail = $emailStore.currentEmail;
-            hasEmail = true;
-        }
-    }
-
     async function handleDeleteInbox() {
         if (confirm('Are you sure you want to delete this inbox?')) {
             try {
-                await emailStore.deleteInbox(storedEmail);
+                await emailStore.deleteInbox($emailStore.currentEmail);
                 hasEmail = false;
-                storedEmail = '';
                 selectedMessage = null;
             } catch (error) {
                 console.error('Failed to delete inbox:', error);
@@ -106,7 +67,7 @@
     }
 
     async function handleRefresh() {
-        if (!storedEmail) return;
+        if (!$emailStore.currentEmail) return;
         try {
             await emailStore.refreshMessages(true);
         } catch (error) {
@@ -132,11 +93,8 @@
         const remainingEmails = storageService.getEmails();
         if (remainingEmails.length === 0) {
             hasEmail = false;
-            storedEmail = '';
-            selectedMessage = null;
         } else {
-            storedEmail = remainingEmails[0];
-            hasEmail = true;
+            emailStore.setCurrentEmail(remainingEmails[0]);
         }
     }
 
@@ -186,7 +144,6 @@
                 
                 <EmailManager 
                     {hasEmail}
-                    {storedEmail}
                     {loading}
                     on:addInbox={() => showCreateEmailModal = true}
                     on:deleteInbox={({ detail }) => handleDeleteInboxClick(detail.email)}
@@ -232,9 +189,10 @@
 <CreateEmailModal
     show={showCreateEmailModal}
     onClose={() => showCreateEmailModal = false}
-    {availableDomains}
     onRandomEmail={handleRandomEmail}
     onCustomEmail={handleCustomEmail}
+    {isLimitReached}
+    {emailCount}
 />
 
 <EmailSelectorModal

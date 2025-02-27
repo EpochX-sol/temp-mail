@@ -39,31 +39,9 @@
     }
 
     onMount(async () => {
-        const navigationState = history.state?.navigationData;
         const uid = $page.params.uid;
+        loading = true;
 
-        // First check navigation state
-        if (navigationState?.message?.uid === uid) {
-            message = navigationState.message;
-            if (!message.is_read) {
-                await emailStore.markAsRead(uid);
-            }
-            loading = false;
-            return;
-        }
-
-        // Then check cache
-        const cachedMessage = storageService.getMessageCache(uid);
-        if (cachedMessage) {
-            message = cachedMessage;
-            if (!message.is_read) {
-                await emailStore.markAsRead(uid);
-            }
-            loading = false;
-            return;
-        }
-
-        // Finally, fetch from API if not found in cache or state
         try {
             const response = await apiService.getMessage(uid);
             if (response.code === 200 && response.message) {
@@ -71,8 +49,6 @@
                 if (!message.is_read) {
                     await emailStore.markAsRead(uid);
                 }
-                // Cache the message
-                storageService.setMessageCache(uid, message);
             } else {
                 error = 'Message not found';
             }

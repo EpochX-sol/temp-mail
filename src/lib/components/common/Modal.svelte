@@ -1,5 +1,7 @@
 <script>
     import { fade, scale } from 'svelte/transition';
+    import { onMount, onDestroy } from 'svelte';
+    
     export let show = false;
     export let title = '';
     export let onClose = () => {};
@@ -10,6 +12,18 @@
             onClose();
         }
     }
+
+    // Add body scroll lock when modal opens
+    $: if (show) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+
+    // Cleanup on component destroy
+    onDestroy(() => {
+        document.body.style.overflow = '';
+    });
 </script>
 
 {#if show}

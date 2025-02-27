@@ -107,15 +107,7 @@ class ApiService {
 
     async getMessage(uid) {
         try {
-            const cachedMessage = storageService.getMessageCache(uid);
-            if (cachedMessage) {
-                return { code: 200, message: cachedMessage };
-            }
-
             const response = await this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
-            if (response.code === 200 && response.message) {
-                storageService.setMessageCache(uid, response.message);
-            }
             return response;
         } catch (error) {
             console.error('Failed to fetch message:', error);

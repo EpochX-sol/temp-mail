@@ -2,21 +2,34 @@
     import Modal from '$lib/components/common/Modal.svelte';
     import Button from '$lib/components/common/Button.svelte';
     import { emailStore } from '$lib/stores/emailStore';
+    import { apiService } from '$lib/services/api';
+    import { onMount } from 'svelte'; 
+    import { storageService } from '$lib/services/storage';
+    import { MAX_EMAILS } from '$lib/utils/constants';
 
     export let show = false;
     export let onClose = () => {};
-    export let availableDomains = [];
     export let onRandomEmail = () => {};
     export let onCustomEmail = () => {};
+    export let isLimitReached = false;
+    export let emailCount = 0;
     
     let customUsername = '';
     let showDomainSelect = false;
     let loading = false;
     let isValidEmail = true;
     let errorMessage = '';
+    let availableDomains = [];
+    let selectedDomain = '';
 
-    $: selectedDomain = availableDomains[0] || '';
-    $: emailCount = emailStore.getAllEmails().length;
+    // Update domains whenever modal is shown
+    $: if (show) {
+        const storedDomains = localStorage.getItem('domains');
+        if (storedDomains) {
+            availableDomains = JSON.parse(storedDomains);
+            selectedDomain = availableDomains[0];
+        }
+    }
 
     function getRandomDomain() {
         const randomIndex = Math.floor(Math.random() * availableDomains.length);
@@ -24,6 +37,8 @@
     }
 
     async function handleRandomEmail() {
+ 
+
         loading = true;
         try { 
             selectedDomain = getRandomDomain();
@@ -31,6 +46,7 @@
             onClose();
         } catch (error) {
             console.error('Failed to create random email:', error);
+            errorMessage = 'Failed to create random email';
         } finally {
             loading = false;
         }
@@ -120,6 +136,12 @@
     closeOnBackdrop={false}
 >
     <div class="create-email-container"> 
+        {#if isLimitReached}
+            <div class="limit-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                You have reached the maximum limit of 10 email addresses
+            </div>
+        {/if}
         <div class="random-section">
             <div class="random-header">
                 <i class="bi bi-shuffle"></i>
@@ -204,6 +226,12 @@
                 </Button>
             </div>
         </div>
+
+        {#if errorMessage}
+            <div class="error-message">
+                {errorMessage}
+            </div>
+        {/if}
     </div>
 </Modal>
 
@@ -500,5 +528,30 @@
 
     :global(.modal-content) {
         overflow: visible !important;
+    }
+
+    .limit-warning {
+        background: var(--bg-warning);
+        color: var(--warning);
+        padding: 4px 16px;
+        border-radius: 8px; 
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .limit-warning i {
+        font-size: 1.2em;
+    }
+
+    .error-message {
+        background: var(--bg-danger);
+        color: var(--danger);
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        text-align: center;
     }
 </style>  

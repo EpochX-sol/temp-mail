@@ -533,3 +533,5 @@ export const SEO_CONFIG = {
 };
 
 export const BASE_URL = 'https://yourdomain.com'; // Replace with your actual domain 
+
+export const MAX_EMAILS = 10; 

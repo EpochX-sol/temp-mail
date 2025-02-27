@@ -1,9 +1,9 @@
 <script>
     import { createEventDispatcher, onMount } from 'svelte';
     import { UI_CONFIG } from '$lib/utils/constants';
+    import { emailStore } from '$lib/stores/emailStore';
     
     export let hasEmail = false;
-    export let storedEmail = '';
     export let loading = false;
     
     const dispatch = createEventDispatcher();
@@ -14,6 +14,8 @@
     let iterationInterval;
     let restartTimeout;
     let errorMessage = '';
+ 
+    $: displayEmail = hasEmail ? $emailStore.currentEmail : generatedEmail;
 
     function truncateEmail(email, maxLength = 24) {
         if (email.length <= maxLength) return email;
@@ -30,10 +32,6 @@
         
         return email;
     }
-
-    $: displayEmail = hasEmail ? 
-        truncateEmail(storedEmail, 32) : 
-        truncateEmail(generatedEmail, 32);
 
     onMount(() => {
         if (!hasEmail) {
@@ -75,7 +73,7 @@
     }
 
     function copyEmail() {
-        navigator.clipboard.writeText(hasEmail ? storedEmail : generatedEmail).then(() => {
+        navigator.clipboard.writeText(hasEmail ? $emailStore.currentEmail : generatedEmail).then(() => {
             isCopied = true;
             setTimeout(() => isCopied = false, UI_CONFIG.ANIMATION.COPY_FEEDBACK_DURATION);
         });
@@ -96,7 +94,7 @@
     {/if}
     {#if hasEmail}
         <h2 class="dynamic-email">
-            <span class="email-display" title={hasEmail ? storedEmail : generatedEmail}>{displayEmail}</span>
+            <span class="email-display" title={hasEmail ? $emailStore.currentEmail : generatedEmail}>{displayEmail}</span>
             <button 
                 class="copy-button" 
                 on:click={copyEmail}
@@ -114,7 +112,7 @@
                 <i class="bi bi-plus-circle action-btn-icon"></i>
                 Add Email
             </button>
-            <button class="action-btn danger" on:click={() => dispatch('deleteInbox', { email: storedEmail })}>
+            <button class="action-btn danger" on:click={() => dispatch('deleteInbox', { email: $emailStore.currentEmail })}>
                 <i class="bi bi-trash action-btn-icon"></i>
                 Delete <span class="delete-email">Email</span>
             </button>

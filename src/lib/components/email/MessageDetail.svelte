@@ -13,8 +13,7 @@
     let isStarring = false;
     let iframeHeight = 600;
     let isMarkingRead = false;
-
-    // Cache the message when it's loaded
+ 
     $: if (message) {
         storageService.setMessageCache(message.uid, message);
     }
@@ -95,19 +94,6 @@
             state: { message }
         });
     }
-
-    onMount(async () => {
-        if (!message.is_read) {
-            try {
-                isMarkingRead = true;
-                await emailStore.markAsRead(message.uid);
-            } catch (error) {
-                console.error('Failed to mark message as read:', error);
-            } finally {
-                isMarkingRead = false;
-            }
-        }
-    });
 
 </script>
 

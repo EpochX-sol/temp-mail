@@ -122,6 +122,29 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        max-height: 60vh;
+        padding:15px 0;
+        overflow-y: auto;
+        padding-right: 4px;
+        scrollbar-width: none;
+    }
+
+    .email-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .email-list::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+        border-radius: 3px;
+    }
+
+    .email-list::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+    }
+
+    .email-list::-webkit-scrollbar-thumb:hover {
+        background: var(--border-hover);
     }
 
     .email-item {
