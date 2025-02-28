@@ -152,7 +152,7 @@
 
     .info-card i {
         font-size: 2rem;
-        color: var(--highlight-color);
+        color: var(--primary);
         margin-bottom: 16px;
         display: block;
     }
