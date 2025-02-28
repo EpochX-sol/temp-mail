@@ -383,21 +383,24 @@
     }
 
     .tooltip {
-        position: absolute;
-        left: calc(100% + 8px);
-        top: 50%;
-        transform: translateY(-50%);
+        visibility: hidden;
+        width: max-content;
         background: var(--bg-tertiary);
         color: var(--text-primary);
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 12px;
         white-space: nowrap;
+        text-align: center; 
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        left: 110%;
+        transform: translateY(-50%);
         opacity: 0;
-        visibility: hidden;
-        transition: all 0.2s ease;
-        z-index: 1000;
-        box-shadow: var(--shadow-sm);
+        transition: opacity 0.15s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+        pointer-events: none;
     }
 
     .tooltip-container:hover .tooltip {

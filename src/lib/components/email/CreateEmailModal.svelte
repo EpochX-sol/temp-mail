@@ -242,13 +242,7 @@
                     Add inbox
                 </Button>
             </div>
-        </div>
-
-        {#if errorMessage}
-            <div class="error-message">
-                {errorMessage}
-            </div>
-        {/if}
+        </div> 
     </div>
 </Modal>
 
