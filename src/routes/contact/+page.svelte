@@ -26,8 +26,8 @@
                 submissionResult = 'error';
             }
         } catch (error) {
-            console.error("Form submission error:", error);
             submissionResult = 'error';
+            throw error;
         } finally {
             isSubmitting = false;
         }

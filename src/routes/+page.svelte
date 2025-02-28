@@ -61,27 +61,11 @@
                 hasEmail = false;
                 selectedMessage = null;
             } catch (error) {
-                // Silent error handling
+                throw error;
             }
         }
     }
-
-    async function handleRefresh() {
-        if (!$emailStore.currentEmail) return;
-        try {
-            await emailStore.refreshMessages(true);
-        } catch (error) {
-            // Silent error handling
-        }
-    }
-
-    function handleAddInbox() {
-        showCreateEmailModal = true;
-    }
-
-    function handleYourInbox() {
-        showEmailSelectorModal = true;
-    }
+  
 
     function handleDeleteInboxClick(email) {
         emailToDelete = email;
@@ -106,8 +90,7 @@
                 storageService.addEmail(response.email);
                 hasEmail = true;
             }
-        } catch (error) {
-            // Silent error handling
+        } catch (error) { 
             throw error;
         }
     }
@@ -117,8 +100,7 @@
             await emailStore.setCurrentEmail(email);
             storageService.addEmail(email);
             hasEmail = true;
-        } catch (error) {
-            // Silent error handling
+        } catch (error) { 
             throw error;
         }
     }

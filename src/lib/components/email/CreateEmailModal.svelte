@@ -22,12 +22,27 @@
     let availableDomains = [];
     let selectedDomain = '';
 
-    // Update domains whenever modal is shown
+    async function loadDomains() {
+        try {
+            const response = await apiService.getDomains();
+            if (response.code === 200 && response.domains) {
+                availableDomains = response.domains;
+                selectedDomain = response.domains[0];
+                localStorage.setItem('domains', JSON.stringify(response.domains));
+            }
+        } catch (error) {
+            errorMessage = 'Failed to load domains';
+        }
+    }
+
+    // Load domains when modal is shown
     $: if (show) {
         const storedDomains = localStorage.getItem('domains');
         if (storedDomains) {
             availableDomains = JSON.parse(storedDomains);
             selectedDomain = availableDomains[0];
+        } else {
+            loadDomains();
         }
     }
 

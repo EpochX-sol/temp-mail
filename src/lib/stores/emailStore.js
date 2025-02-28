@@ -18,14 +18,13 @@ function createEmailStore() {
 
     let store;
     subscribe(value => {
-        store = value;
-        // Save currentEmail to localStorage whenever it changes
+        store = value; 
         if (browser && value.currentEmail) {
             localStorage.setItem(STORAGE_KEY, value.currentEmail);
         }
     });
 
-    async function refreshMessages(force = false) {
+    async function refreshMessages(force = false) { 
         if (!store.currentEmail || store.loading) return;
 
         update(s => ({ ...s, loading: true }));
@@ -77,8 +76,7 @@ function createEmailStore() {
     }
 
     async function setCurrentEmail(email) {
-        update(s => ({ ...s, currentEmail: email, messages: [], loading: true }));
-        
+        update(s => ({ ...s, currentEmail: email, messages: [], loading: true })); 
         try {
             const response = await apiService.getInboxMessages(email);
             if (response.code === 200) {
@@ -139,8 +137,8 @@ function createEmailStore() {
                         msg.uid === uid ? { ...msg, is_read: true } : msg
                     )
                 }));
-            } catch (error) {
-                // Silent error handling
+            } catch (error) { 
+                throw error;
             }
         },
         refreshMessages,
@@ -166,8 +164,7 @@ function createEmailStore() {
                     ...state,
                     messages: state.messages.filter(msg => !uids.includes(msg.uid))
                 }));
-            } catch (error) {
-                console.error('Failed to bulk delete messages:', error);
+            } catch (error) { 
                 throw error;
             }
         },
@@ -204,8 +201,7 @@ function createEmailStore() {
                     }
                     storageService.setCurrentEmail(nextEmail);
                 }
-            } catch (error) {
-                console.error('Failed to delete inbox:', error);
+            } catch (error) { 
                 throw error;
             }
         },

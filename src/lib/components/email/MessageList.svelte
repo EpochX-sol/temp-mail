@@ -6,6 +6,7 @@
     import { createEventDispatcher } from 'svelte';
     import { API_CONFIG, UI_CONFIG } from '$lib/utils/constants';
     import { apiService } from '$lib/services/api';
+    import { browser } from '$app/environment';
 
     const dispatch = createEventDispatcher();
 
@@ -79,11 +80,24 @@
         try {
             localStorage.setItem('preferredPageSize', newSize.toString());
         } catch (error) {
-            console.error('Failed to save page size preference:', error);
+            throw error;
         }
     }
 
     onMount(() => {
+        // Initialize email from storage
+        if (browser) {
+            const storedEmail = localStorage.getItem('currentEmail');
+            if (storedEmail) {
+                emailStore.setCurrentEmail(storedEmail);
+            }
+        }
+
+        // Start message polling if we have an email
+        if ($emailStore.currentEmail) {
+            emailStore.refreshMessages(true);
+        }
+        
         try {
             const savedSize = localStorage.getItem('preferredPageSize');
             if (savedSize) {
@@ -93,11 +107,10 @@
                 }
             }
         } catch (error) {
-            console.error('Failed to load page size preference:', error);
+            // Silent error handling for page size
         }
         
         const cleanup = emailStore.startPolling();
-        
         return () => {
             cleanup();
         };
@@ -133,7 +146,7 @@
         try {
             await emailStore.deleteMessage(uid);
         } catch (error) {
-            console.error('Failed to delete message:', error);
+            throw error;
         } finally {
             isDeleting = false;
         }
@@ -150,7 +163,7 @@
             try {
                 await emailStore.bulkDelete(uids);
             } catch (error) {
-                console.error('Failed to bulk delete messages:', error);
+                throw error;
             } finally {
                 isDeleting = false;
             }
@@ -171,7 +184,7 @@
                     }
                 }
             } catch (error) {
-                console.error('Failed to mark message as read:', error);
+                throw error;
             }
         }
     }
@@ -191,7 +204,7 @@
                 }
             }
         } catch (error) {
-            console.error('Failed to toggle star:', error);
+            throw error;
         } finally {
             isStarring.delete(uid);
             isStarring = isStarring;

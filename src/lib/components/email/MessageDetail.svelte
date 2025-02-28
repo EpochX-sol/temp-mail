@@ -14,10 +14,7 @@
     let iframeHeight = 600;
     let isMarkingRead = false;
  
-    $: if (message) {
-        storageService.setMessageCache(message.uid, message);
-    }
-
+  
     async function toggleStar() {
         if (isStarring) return;
         isStarring = true;
@@ -29,7 +26,7 @@
                 emailStore.updateMessage(message.uid, { is_starred: message.is_starred });
             }
         } catch (error) {
-            console.error('Failed to toggle star:', error);
+            throw error;
         } finally {
             isStarring = false;
         }
@@ -41,7 +38,7 @@
             await emailStore.deleteMessage(message.uid);
             handleBack();
         } catch (error) {
-            console.error('Failed to delete message:', error);
+            throw error;
         } finally {
             isDeleting = false;
         }

@@ -28,7 +28,8 @@ class ApiService {
         }
     }
 
-    async handleRequest(endpoint, options = {}) {  
+    async handleRequest(endpoint, options = {}) {    
+        
         try {
             await this.checkRateLimit();
 
@@ -39,17 +40,25 @@ class ApiService {
                     ...options.headers,
                 },
             }); 
- 
 
-            if (!response.ok) {
+            if (response.status === 429) {
+                if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('rateLimitError', 'true');
+                    window.location.href = '/api';
+                }
+                throw new Error('Rate limit exceeded');
+            }
+
+            if (!response.ok) { 
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
+           
             return data;
-        } catch (error) {
+        } catch (error) { 
             if (error.message === 'Rate limit exceeded') {
-                throw error; // Let it propagate
+                throw error;  
             }
             warningStore.set({
                 show: true,
@@ -73,14 +82,13 @@ class ApiService {
     }
 
     async getInboxMessages(email) {
-        try {
+        try { 
             const response = await this.handleRequest(API_ENDPOINTS.INBOX_MESSAGES(email));
             if (response.code !== 200) {
                 throw new Error(response.msg || 'Failed to fetch messages');
             }
             return response;
         } catch (error) {
-            console.error('Failed to fetch inbox messages:', error);
             warningStore.set({
                 show: true,
                 message: 'Failed to fetch messages. Please try again later.',
@@ -95,7 +103,6 @@ class ApiService {
             const response = await this.handleRequest(API_ENDPOINTS.MESSAGE(uid));
             return response;
         } catch (error) {
-            console.error('Failed to fetch message:', error);
             warningStore.set({
                 show: true,
                 message: 'Failed to load message. Please try again later.',
@@ -109,7 +116,6 @@ class ApiService {
         try {
             return await this.handleRequest(API_ENDPOINTS.DELETE_MESSAGE(uid));
         } catch (error) {
-            console.error('Failed to delete message:', error);
             warningStore.set({
                 show: true,
                 message: 'Failed to delete message. Please try again later.',
@@ -127,7 +133,6 @@ class ApiService {
         try {
             return await this.handleRequest(API_ENDPOINTS.STAR_MESSAGE(uid));
         } catch (error) {
-            console.error('Failed to toggle star:', error);
             warningStore.set({
                 show: true,
                 message: 'Failed to update star status. Please try again later.',
@@ -152,7 +157,6 @@ class ApiService {
             }
             return response;
         } catch (error) {
-            console.error('Failed to fetch domains:', error);
             warningStore.set({
                 show: true,
                 message: 'Failed to load domains. Please try again later.',

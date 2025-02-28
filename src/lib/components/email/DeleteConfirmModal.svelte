@@ -15,7 +15,7 @@
             await onConfirm();
             onClose();
         } catch (error) {
-            console.error('Failed to delete inbox:', error);
+            throw error;
         } finally {
             isDeleting = false;
         }

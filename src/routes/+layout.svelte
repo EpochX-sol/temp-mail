@@ -1,8 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { apiService } from '$lib/services/api';
     import { themeStore } from '$lib/stores/themeStore';
-    import { emailStore } from '$lib/stores/emailStore';
     import Header from '$lib/components/layout/Header.svelte';
     import { browser } from '$app/environment'; 
     import '../app.css';
@@ -14,19 +12,7 @@
     let isLoading = true;
     let mounted = false;
 
-    async function loadDomains() {
-        try {
-            const response = await apiService.getDomains();
-            if (response.code === 200 && response.domains) {
-                localStorage.setItem('domains', JSON.stringify(response.domains));
-                localStorage.setItem('domains_timestamp', Date.now().toString());
-            }
-        } catch (error) {
-            console.error('Failed to fetch domains:', error);
-        }
-    }
-
-    onMount(async () => {
+    onMount(() => {
         mounted = true;
         if (browser) {
             const savedTheme = localStorage.getItem('theme');
@@ -37,13 +23,6 @@
                 isLoading = false;
                 document.documentElement.classList.add('transitions-enabled');
             }, 500);
-
-            await loadDomains();
-        }
-
-        const storedEmail = localStorage.getItem('currentEmail');
-        if (storedEmail) {
-            emailStore.setCurrentEmail(storedEmail);
         }
 
         window.addEventListener('scroll', () => {
