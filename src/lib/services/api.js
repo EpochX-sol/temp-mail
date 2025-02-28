@@ -6,35 +6,25 @@ class ApiService {
     constructor() {
         this.requestCount = 0;
         this.lastResetTime = Date.now();
-        this.hasRedirected = false;
     }
 
     async checkRateLimit() { 
-        const now = Date.now();
+        const now = Date.now(); 
         if (now - this.lastResetTime >= API_CONFIG.RATE_LIMIT_INTERVAL) { 
             this.requestCount = 0;
             this.lastResetTime = now;
         }
 
-        this.requestCount++; 
+        this.requestCount++;  
         if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) { 
             this.requestCount = 0;
             this.lastResetTime = now;
-            
-            // Set rate limit flag in sessionStorage
+             
             if (typeof window !== 'undefined') {
                 sessionStorage.setItem('rateLimitError', 'true');
+                window.location.href = '/api'; 
+                throw new Error('Rate limit exceeded');
             }
-            
-            this.redirectToApiPage('rate_limit');
-            throw new Error('Rate limit exceeded. Please check our API documentation for limits and pricing.');
-        }
-    }
-
-    redirectToApiPage(errorType) {
-        if (!this.hasRedirected) {
-            this.hasRedirected = true;
-            window.location.href = '/api';
         }
     }
 
@@ -49,14 +39,7 @@ class ApiService {
                     ...options.headers,
                 },
             }); 
-
-            if (response.status === 429) {
-                if (typeof window !== 'undefined') {
-                    sessionStorage.setItem('rateLimitError', 'true');
-                    window.location.href = '/api';
-                }
-                throw new Error('Rate limit exceeded');
-            }
+ 
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -65,7 +48,9 @@ class ApiService {
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error(`API Error (${endpoint}):`, error);
+            if (error.message === 'Rate limit exceeded') {
+                throw error; // Let it propagate
+            }
             warningStore.set({
                 show: true,
                 message: error.message || 'An error occurred while fetching data',

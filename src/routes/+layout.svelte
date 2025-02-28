@@ -7,8 +7,7 @@
     import { browser } from '$app/environment'; 
     import '../app.css';
     import Footer from '$lib/components/layout/Footer.svelte';
-    import { page } from '$app/stores';
-    import Warning from '$lib/components/common/Warning.svelte';
+    import { page } from '$app/stores'; 
 
     let lastScrollY = 0;
     let headerVisible = true;
@@ -61,8 +60,7 @@
         document.documentElement.setAttribute('data-theme', $themeStore);
     }
 </script>
-
-<Warning />
+ 
 
 {#if isLoading}
     <div class="initial-loading"> 
