@@ -24,13 +24,21 @@ function createEmailStore() {
         }
     });
 
+    let lastRefreshTime = 0;
+
     async function refreshMessages(force = false) { 
         if (!store.currentEmail || store.loading) return;
+
+        const now = Date.now();
+        if (!force && now - lastRefreshTime < API_CONFIG.REFRESH_INTERVAL) {
+            return;
+        }
 
         update(s => ({ ...s, loading: true }));
         try {
             const response = await apiService.getInboxMessages(store.currentEmail);
             if (response.code === 200) {
+                lastRefreshTime = now;
                 update(s => ({
                     ...s,
                     messages: response.messages || [],

@@ -2,37 +2,9 @@ import { API_CONFIG, API_ENDPOINTS } from '../utils/constants.js';
 import { warningStore } from '../stores/warningStore';
 import { storageService } from './storage';
 
-class ApiService {
-    constructor() {
-        this.requestCount = 0;
-        this.lastResetTime = Date.now();
-    }
-
-    async checkRateLimit() { 
-        const now = Date.now(); 
-        if (now - this.lastResetTime >= API_CONFIG.RATE_LIMIT_INTERVAL) { 
-            this.requestCount = 0;
-            this.lastResetTime = now;
-        }
-
-        this.requestCount++;  
-        if (this.requestCount > API_CONFIG.RATE_LIMIT_THRESHOLD) { 
-            this.requestCount = 0;
-            this.lastResetTime = now;
-             
-            if (typeof window !== 'undefined') {
-                sessionStorage.setItem('rateLimitError', 'true');
-                window.location.href = '/api'; 
-                throw new Error('Rate limit exceeded');
-            }
-        }
-    }
-
+class ApiService { 
     async handleRequest(endpoint, options = {}) {    
-        
         try {
-            await this.checkRateLimit();
-
             const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
                 ...options,
                 headers: {
@@ -54,7 +26,6 @@ class ApiService {
             }
 
             const data = await response.json();
-           
             return data;
         } catch (error) { 
             if (error.message === 'Rate limit exceeded') {

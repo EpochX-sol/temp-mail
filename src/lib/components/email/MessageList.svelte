@@ -85,15 +85,12 @@
     }
 
     onMount(() => {
-        // Initialize email from storage
         if (browser) {
             const storedEmail = localStorage.getItem('currentEmail');
             if (storedEmail) {
                 emailStore.setCurrentEmail(storedEmail);
             }
-        }
-
-        // Start message polling if we have an email
+        } 
         if ($emailStore.currentEmail) {
             emailStore.refreshMessages(true);
         }
@@ -107,7 +104,7 @@
                 }
             }
         } catch (error) {
-            // Silent error handling for page size
+            throw error;
         }
         
         const cleanup = emailStore.startPolling();
