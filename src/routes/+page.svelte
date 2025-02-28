@@ -61,7 +61,7 @@
                 hasEmail = false;
                 selectedMessage = null;
             } catch (error) {
-                console.error('Failed to delete inbox:', error);
+                // Silent error handling
             }
         }
     }
@@ -71,7 +71,7 @@
         try {
             await emailStore.refreshMessages(true);
         } catch (error) {
-            console.error('Failed to refresh messages:', error);
+            // Silent error handling
         }
     }
 
@@ -107,7 +107,7 @@
                 hasEmail = true;
             }
         } catch (error) {
-            console.error('Failed to create random email:', error);
+            // Silent error handling
             throw error;
         }
     }
@@ -118,7 +118,7 @@
             storageService.addEmail(email);
             hasEmail = true;
         } catch (error) {
-            console.error('Failed to create custom email:', error);
+            // Silent error handling
             throw error;
         }
     }

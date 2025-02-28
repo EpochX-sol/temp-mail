@@ -37,7 +37,10 @@
     }
 
     async function handleRandomEmail() {
- 
+        if (isLimitReached) {
+            errorMessage = 'You have reached the maximum limit of 10 email addresses';
+            return;
+        }
 
         loading = true;
         try { 
@@ -45,7 +48,6 @@
             await onRandomEmail();
             onClose();
         } catch (error) {
-            console.error('Failed to create random email:', error);
             errorMessage = 'Failed to create random email';
         } finally {
             loading = false;
@@ -102,7 +104,7 @@
                     errorMessage = '';
                     onClose();
                 } catch (error) {
-                    console.error('Failed to create email:', error);
+                    errorMessage = 'Failed to create custom email';
                 } finally {
                     loading = false;
                 }

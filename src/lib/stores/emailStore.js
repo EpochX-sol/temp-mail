@@ -40,7 +40,6 @@ function createEmailStore() {
                 }));
             }
         } catch (error) {
-            // Don't keep trying to refresh if we hit rate limit
             if (error.message === 'Rate limit exceeded') {
                 update(s => ({ 
                     ...s, 
@@ -128,7 +127,6 @@ function createEmailStore() {
                     messages: state.messages.filter(msg => msg.uid !== uid)
                 }));
             } catch (error) {
-                console.error('Failed to delete message:', error);
                 throw error;
             }
         },
@@ -142,7 +140,7 @@ function createEmailStore() {
                     )
                 }));
             } catch (error) {
-                console.error('Failed to mark as read:', error);
+                // Silent error handling
             }
         },
         refreshMessages,
