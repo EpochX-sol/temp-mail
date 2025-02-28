@@ -244,7 +244,7 @@ export const API_PAGE_CONFIG = {
         {
             icon: "bi-rocket",
             title: "Quick Start",
-            description: "Get started in minutes with our simple API endpoints"
+            description: "Get started with our simple API endpoints"
         },
         {
             icon: "bi-shield-check",
@@ -534,4 +534,6 @@ export const SEO_CONFIG = {
 
 export const BASE_URL = 'https://yourdomain.com'; // Replace with your actual domain 
 
-export const MAX_EMAILS = 10; 
+export const MAX_EMAILS = 10;
+
+ 

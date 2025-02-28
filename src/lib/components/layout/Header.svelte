@@ -4,8 +4,10 @@
     import { slide } from 'svelte/transition';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
 
     let isMenuOpen = false;
+    let isNavigating = false;
 
     $: currentPath = $page.url.pathname;
 
@@ -25,6 +27,17 @@
 
     onMount(() => {
         document.addEventListener('click', handleClickOutside);
+        
+        // Check for FAQ hash on load
+        if (browser && window.location.hash === '#faq') {
+            setTimeout(() => {
+                const faqSection = document.getElementById('faq');
+                if (faqSection) {
+                    faqSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
+
         return () => {
             document.removeEventListener('click', handleClickOutside);
         };
@@ -33,20 +46,25 @@
     async function scrollToFaq(e) {
         e.preventDefault();
         closeMenu();
- 
-        if (currentPath !== '/') {
-            await goto('/'); 
-            setTimeout(() => {
+
+        if (isNavigating) return;
+        isNavigating = true;
+
+        try {
+            if (currentPath !== '/') {
+                // Add hash to URL before navigation
+                await goto('/#faq');
+            } else {
+                // Already on home page, just scroll
                 const faqSection = document.getElementById('faq');
                 if (faqSection) {
                     faqSection.scrollIntoView({ behavior: 'smooth' });
                 }
-            }, 100);
-        } else { 
-            const faqSection = document.getElementById('faq');
-            if (faqSection) {
-                faqSection.scrollIntoView({ behavior: 'smooth' });
             }
+        } catch (error) {
+            console.error('Navigation error:', error);
+        } finally {
+            isNavigating = false;
         }
     }
 

@@ -78,8 +78,9 @@
                 </ul>
 
                 <div class="cta-section">
-                    <p>Ready to get started? Get your API key from <a href="https://rapidapi.com" class="link">Rapid API</a></p>
-                    <a href="https://rapidapi.com" class="cta-button">Start Free Trial</a>
+                    <h1>Ready to get started? </h1>
+                    <p>Get your API key  and start building amazing applications.</p>
+                    <a href="https://rapidapi.com" class="cta-button">Get API Key</a>
                 </div>
             </section>
         </div>
@@ -139,6 +140,10 @@
         border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .info-card:hover {
@@ -149,6 +154,15 @@
         font-size: 2rem;
         color: var(--highlight-color);
         margin-bottom: 16px;
+        display: block;
+    }
+
+    .info-card h3 {
+        margin-bottom: 12px;
+    }
+
+    .info-card p {
+        margin: 0;
     }
 
     .endpoint-card {
@@ -208,6 +222,8 @@
     .cta-section {
         text-align: center; 
         border-radius: 8px;  
+        background: var(--bg-secondary);
+        padding: 20px;
     }
 
     .cta-button {
@@ -282,10 +298,11 @@
     }
  
     .cta-section p {
-        margin-bottom: 24px;
+        margin-bottom: 4px;
     }
 
     .cta-button {
+        margin-top: 10px;
         display: inline-block;
         background: var(--primary);
         color: white;
