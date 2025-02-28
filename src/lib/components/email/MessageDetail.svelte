@@ -63,6 +63,11 @@
         });
     }
 
+    function sanitizeHtml(html) {
+        // Convert http to https
+        return html.replace(/http:\/\//g, 'https://');
+    }
+
     function adjustIframeContent(event) {
         const iframe = event.target;
         if (iframe.contentDocument && iframe.contentDocument.body) { 
@@ -82,6 +87,12 @@
                 * {
                     box-sizing: border-box !important;
                     word-wrap: break-word !important;
+                }
+                /* Block third-party tracking pixels */
+                img[src*="mmstat.com"],
+                img[src*="tracking"],
+                img[width="1"][height="1"] {
+                    display: none !important;
                 }
             `;
             iframe.contentDocument.head.appendChild(style); 
@@ -167,10 +178,11 @@
                 <iframe
                     class="email-iframe"
                     sandbox="allow-same-origin"
-                    srcdoc={message.msg.html}
+                    srcdoc={sanitizeHtml(message.msg.html)}
                     title="Email Content"
                     on:load={adjustIframeContent}
                     style="height: {iframeHeight}px;"
+                    referrerpolicy="no-referrer"
                 ></iframe>
             {:else if message.msg.text_formatted}
                 <pre>{message.msg.text_formatted}</pre>
