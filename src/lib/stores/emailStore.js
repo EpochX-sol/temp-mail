@@ -25,6 +25,7 @@ function createEmailStore() {
     });
 
     let lastRefreshTime = 0;
+    let isPaused = false;
 
     async function refreshMessages(force = false) { 
         if (!store.currentEmail || store.loading) return;
@@ -117,6 +118,35 @@ function createEmailStore() {
         }));
     }
 
+    function startPolling() {
+        isPaused = false;
+         
+        const pollInterval = setInterval(() => {
+            if (document.visibilityState === 'visible' && !isPaused) {
+                refreshMessages();
+            }
+        }, API_CONFIG.REFRESH_INTERVAL);
+ 
+        const visibilityHandler = () => {
+            if (document.visibilityState === 'visible') {
+                if (isPaused) {
+                    isPaused = false;
+                    refreshMessages(true); 
+                }
+            } else {
+                isPaused = true;
+            }
+        };
+
+        document.addEventListener('visibilitychange', visibilityHandler);
+
+        return () => {
+            clearInterval(pollInterval);
+            document.removeEventListener('visibilitychange', visibilityHandler);
+            isPaused = true;
+        };
+    }
+
     return {
         subscribe,
         setCurrentEmail,
@@ -150,21 +180,7 @@ function createEmailStore() {
             }
         },
         refreshMessages,
-        startPolling: () => {
-            const pollInterval = setInterval(() => {
-                if (document.visibilityState === 'visible') {
-                    refreshMessages();
-                }
-            }, 10000);
-
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    refreshMessages(true);
-                }
-            });
-
-            return () => clearInterval(pollInterval);
-        },
+        startPolling,
         bulkDelete: async (uids) => {
             try {
                 await apiService.bulkDelete(uids);
