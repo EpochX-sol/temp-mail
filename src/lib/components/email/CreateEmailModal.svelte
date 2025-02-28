@@ -6,6 +6,7 @@
     import { onMount } from 'svelte'; 
     import { storageService } from '$lib/services/storage';
     import { MAX_EMAILS } from '$lib/utils/constants';
+    import { domainStore } from '$lib/stores/domainStore';
 
     export let show = false;
     export let onClose = () => {};
@@ -23,28 +24,34 @@
     let selectedDomain = '';
 
     async function loadDomains() {
+        if ($domainStore.isLoaded) {
+            return; // Don't load if already loaded
+        }
+
+        loading = true;
         try {
             const response = await apiService.getDomains();
             if (response.code === 200 && response.domains) {
-                availableDomains = response.domains;
-                selectedDomain = response.domains[0];
-                localStorage.setItem('domains', JSON.stringify(response.domains));
+                domainStore.set({
+                    domains: response.domains,
+                    isLoaded: true
+                });
             }
         } catch (error) {
             errorMessage = 'Failed to load domains';
+        } finally {
+            loading = false;
         }
     }
 
     // Load domains when modal is shown
     $: if (show) {
-        const storedDomains = localStorage.getItem('domains');
-        if (storedDomains) {
-            availableDomains = JSON.parse(storedDomains);
-            selectedDomain = availableDomains[0];
-        } else {
-            loadDomains();
-        }
+        loadDomains();
     }
+
+    // Use domains from store
+    $: availableDomains = $domainStore.domains;
+    $: selectedDomain = availableDomains[0] || '';
 
     function getRandomDomain() {
         const randomIndex = Math.floor(Math.random() * availableDomains.length);

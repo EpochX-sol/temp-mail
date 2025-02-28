@@ -6,7 +6,6 @@
     import { createEventDispatcher } from 'svelte';
     import { API_CONFIG, UI_CONFIG } from '$lib/utils/constants';
     import { apiService } from '$lib/services/api';
-    import { browser } from '$app/environment';
 
     const dispatch = createEventDispatcher();
 
@@ -84,17 +83,7 @@
         }
     }
 
-    onMount(() => {
-        if (browser) {
-            const storedEmail = localStorage.getItem('currentEmail');
-            if (storedEmail) {
-                emailStore.setCurrentEmail(storedEmail);
-            }
-        } 
-        if ($emailStore.currentEmail) {
-            emailStore.refreshMessages(true);
-        }
-        
+    onMount(() => { 
         try {
             const savedSize = localStorage.getItem('preferredPageSize');
             if (savedSize) {

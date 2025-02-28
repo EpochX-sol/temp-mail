@@ -17,6 +17,7 @@
     import Button from '$lib/components/common/Button.svelte';
     import DeleteConfirmModal from '$lib/components/email/DeleteConfirmModal.svelte';
     import EmailSelector from '$lib/components/email/EmailSelector.svelte';
+    import { browser } from '$app/environment';
 
     let hasEmail = false;
     let loading = false;
@@ -35,14 +36,32 @@
         isLimitReached = emailCount >= MAX_EMAILS;
     }
 
-    onMount(() => {
-        const unsubscribe = storageService.subscribe(() => {
-            emailCount = storageService.getEmails().length;
-            isLimitReached = emailCount >= MAX_EMAILS;
-        });
-
+    onMount(() => { 
+        if (browser) {
+            const storedEmail = localStorage.getItem('currentEmail');
+            if (storedEmail) {
+                emailStore.setCurrentEmail(storedEmail);
+            }
+        } 
+        if ($emailStore.currentEmail) {
+            emailStore.refreshMessages(true);
+        }
+        
+        try {
+            const savedSize = localStorage.getItem('preferredPageSize');
+            if (savedSize) {
+                const size = parseInt(savedSize);
+                if (pageSizes.find(p => p.value === size)) {
+                    rowsPerPage = size;
+                }
+            }
+        } catch (error) {
+            throw error;
+        }
+        
+        const cleanup = emailStore.startPolling();
         return () => {
-            unsubscribe();
+            cleanup();
         };
     });
 

@@ -67,19 +67,5 @@ export const storageService = {
     setTheme(theme) {
         if (!isBrowser) return;
         localStorage.setItem('theme_mode', theme);
-    },
-
-    getDomains() {
-        if (isBrowser) {
-            const domains = localStorage.getItem('domains');
-            return domains ? JSON.parse(domains) : null;
-        }
-        return null;
-    },
-
-    setDomains(domains) {
-        if (isBrowser) {
-            localStorage.setItem('domains', JSON.stringify(domains));
-        }
     }
 }; 
