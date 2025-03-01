@@ -12,7 +12,10 @@ const config = {
     prerender: {
       entries: ['/about', '/contact', '/api', '/terms', '/privacy', '/message/1','/'],
     }
-  }
+  },
+  onwarn: (warning, handler) => { 
+    return
+}
 };
 
 export default config;
