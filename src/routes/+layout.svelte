@@ -22,7 +22,7 @@
             setTimeout(() => {
                 loading = false;
                 document.documentElement.classList.add('transitions-enabled');
-            }, 1);
+            }, 5);
         }
         
         window.addEventListener('scroll', () => {
