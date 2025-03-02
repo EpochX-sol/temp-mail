@@ -9,8 +9,12 @@ const config = {
     prerender: {
       entries: ['*','/message/1'],
       handleMissingId: 'ignore'
-    }
-  }
+    },
+  },
+  onwarn: (warning, handler) => { 
+    return
+}
+ 
 };
 
 export default config;
