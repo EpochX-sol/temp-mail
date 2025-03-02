@@ -54,8 +54,7 @@
     .error-container {
         max-width: 500px;
         background: var(--bg-card);
-        border-radius: 16px; 
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-radius: 16px;  
         text-align: center;
         animation: fadeIn 0.5s ease;
         margin-top: 5%;
