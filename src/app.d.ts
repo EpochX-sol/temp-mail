@@ -8,6 +8,10 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface Platform {}
+		interface Error {
+			message: string;
+			status?: number;
+		}
 	}
 
 	interface EmailMessage {

@@ -1,21 +1,16 @@
-import adapter from '@sveltejs/adapter-node';
+import adapter from '@sveltejs/adapter-auto';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
   kit: {
-    adapter: adapter({
-      fallback: 'index.html',
-      strict: false
-    }),
+    adapter: adapter(),
     prerender: {
-      entries: ['/about', '/contact', '/api', '/terms', '/privacy', '/message/1','/'],
+      entries: ['*','/message/1'],
+      handleMissingId: 'ignore'
     }
-  },
-  onwarn: (warning, handler) => { 
-    return
-}
+  }
 };
 
 export default config;

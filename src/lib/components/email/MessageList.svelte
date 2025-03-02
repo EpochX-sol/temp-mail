@@ -24,7 +24,7 @@
     const pageSizes = UI_CONFIG.PAGINATION.PAGE_SIZES;
     const demoMessages = UI_CONFIG.DEMO_MESSAGES;
 
-    $: messages = $emailStore.messages;
+    $: messages = $emailStore.messages; 
     $: displayMessages = $emailStore.currentEmail ? messages : demoMessages;
  
     $: filteredMessages = displayMessages.filter(message => {

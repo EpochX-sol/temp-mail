@@ -60,7 +60,7 @@
                 <div class="docs-links">
                     <p>
                         Explore our comprehensive documentation in 
-                        <a href="/docs" class="link">our API guide</a> 
+                        <a href="/api" class="link">our API guide</a> 
                         or visit our official page on 
                         <a href="https://rapidapi.com" class="link">Rapid API</a>.
                     </p>

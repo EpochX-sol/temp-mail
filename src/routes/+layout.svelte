@@ -41,16 +41,13 @@
 </script>
  
 
-{#if isLoading}
-    <div class="initial-loading"> 
-    </div>
-{:else}
-    <div class="app-layout" data-theme={$themeStore}>
+
+    <div class="app-layout" class:loading={isLoading} data-theme={$themeStore}>
         {#if !($page.url.pathname.startsWith('/message/'))}
             <Header />
-        {/if}
-        
-        <main class="main-content">
+        {/if} 
+  
+        <main class="main-content" >
             <div class="content-container">
                 <slot />
             </div>
@@ -58,8 +55,7 @@
         {#if !($page.url.pathname.startsWith('/message/'))}
             <Footer />
         {/if}
-    </div>
-{/if}
+    </div> 
 
 <style>
     .main-content {
@@ -68,7 +64,9 @@
         flex-direction: column;
         background-color: var(--bg-page);
     }
- 
+    .loading{
+        display: none; 
+    }
     .content-container {
         flex: 1;
         width: 100%;
@@ -79,18 +77,6 @@
         width: 100%;
     }
 
-    .initial-loading {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--bg-page);
-        z-index: 9999;
-    }
 
     :global(body) {
         margin: 0;

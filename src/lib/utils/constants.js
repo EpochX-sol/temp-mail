@@ -54,6 +54,7 @@ export const UI_CONFIG = {
             name: 'us@gmail.com',
             subject: 'Welcome to our service - Welcome to the inboxes.com temporary email service',
             time: 'A few seconds ago',
+            date: "2024-02-15",
             from: {
                 name: 'Welcome Bot',
                 address: 'us@gmail.com'
@@ -68,6 +69,8 @@ export const UI_CONFIG = {
             name: 'support@gmail.com',
             subject: 'Have questions? - you can contact us for help',
             time: '39 seconds ago',
+            date: "2024-02-17",
+
             from: {
                 name: 'Support Team',
                 address: 'support@gmail.com'
@@ -394,12 +397,12 @@ export const SHARED_STYLES = {
 
 export const FOOTER_CONFIG = {
     product: [ 
-        { name: 'Security', href: '#security' },
-        { name: 'FAQ', href: '#faq' },
+        { name: 'Security', href: '/' },
+        { name: 'FAQ', href: '/#faq' },
         { name: 'API', href: '/api' }
     ],
     support: [
-        { name: 'Help', href: '#faq' },
+        { name: 'Help', href: '/#faq' },
         { name: 'Contact', href: '/contact' }, 
     ],
     social: [

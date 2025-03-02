@@ -62,7 +62,7 @@
                 }
             }
         } catch (error) {
-            console.error('Navigation error:', error);
+            throw error;
         } finally {
             isNavigating = false;
         }
