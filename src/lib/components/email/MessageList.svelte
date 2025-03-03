@@ -156,7 +156,20 @@
         }
     }
 
-    async function handleMessageClick(message) {
+    async function handleMessageClick(message) { 
+        if (!$emailStore.currentEmail) {
+            if (message.uid === '1') {
+                window.location.href = '/about';  
+                return;
+            } else if (message.uid === '2') {
+                window.location.href = '/contact'; // Navigate to Contact page
+                return;
+            }
+            // For messages 3 and 4, do nothing
+            return;
+        }
+
+        // Handle real messages as before
         dispatch('messageSelect', message);
         
         if (!message.is_read) {
@@ -214,12 +227,25 @@
     function formatMessageTime(date) {
         const now = new Date();
         const messageDate = new Date(date);
-        const diffInHours = Math.abs(now - messageDate) / 36e5;
+        const diffInSeconds = Math.floor((now - messageDate) / 1000);
 
-        if (diffInHours < 24) { 
-            return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } else { 
-            return messageDate.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+        if (diffInSeconds < 60) {
+            return `${diffInSeconds} second${diffInSeconds === 1 ? '' : 's'} ago`;
+        } else if (diffInSeconds < 3600) {
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+        } else if (diffInSeconds < 86400) {
+            const diffInHours = Math.floor(diffInSeconds / 3600);
+            return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+        } else if (diffInSeconds < 2592000) {  
+            const diffInDays = Math.floor(diffInSeconds / 86400);
+            return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+        } else if (diffInSeconds < 31536000) {  
+            const diffInMonths = Math.floor(diffInSeconds / 2592000);  
+            return `${diffInMonths} month${diffInMonths === 1 ? '' : 's'} ago`;
+        } else {
+            const diffInYears = Math.floor(diffInSeconds / 31536000);  
+            return `${diffInYears} year${diffInYears === 1 ? '' : 's'} ago`;
         }
     }
 
@@ -858,7 +884,7 @@
 
     .message-item.demo {
         opacity: 0.9;
-        pointer-events: none;
+        cursor: pointer; 
     }
 
     .message-item.blurred {
@@ -875,6 +901,7 @@
     .message-item.demo:hover {
         transform: none;
         box-shadow: none;
+        background: none;
     }
 
     .toolbar-center {

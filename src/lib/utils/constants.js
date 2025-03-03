@@ -54,7 +54,7 @@ export const UI_CONFIG = {
             name: 'us@gmail.com',
             subject: 'Welcome to our service - Welcome to the inboxes.com temporary email service',
             time: 'A few seconds ago',
-            date: "2024-02-15",
+            date: new Date(Date.now() - 8640000).toISOString(),
             from: {
                 name: 'Welcome Bot',
                 address: 'us@gmail.com'
@@ -69,7 +69,7 @@ export const UI_CONFIG = {
             name: 'support@gmail.com',
             subject: 'Have questions? - you can contact us for help',
             time: '39 seconds ago',
-            date: "2024-02-17",
+            date: new Date(Date.now() - 10000).toISOString(),
 
             from: {
                 name: 'Support Team',
@@ -85,6 +85,8 @@ export const UI_CONFIG = {
             name: 'security@gmail.com',
             subject: 'Your privacy is our priority - Learn about our security features',
             time: '1 minute ago',
+            date: new Date(Date.now() - 120000).toISOString(),
+
             from: {
                 name: 'Security Team',
                 address: 'security@gmail.com'
@@ -99,6 +101,8 @@ export const UI_CONFIG = {
             name: 'tips@gmail.com',
             subject: 'Pro tips for using temporary email - Get the most out of our service',
             time: '2 minutes ago',
+            date: new Date(Date.now() - 12000).toISOString(),
+
             from: {
                 name: 'Tips & Tricks',
                 address: 'tips@gmail.com'
