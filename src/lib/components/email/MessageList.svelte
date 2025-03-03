@@ -167,8 +167,7 @@
             } 
             return;
         }
-
-        // Handle real messages as before
+ 
         dispatch('messageSelect', message);
         
         if (!message.is_read) {
@@ -1150,7 +1149,7 @@
         .checkbox-wrapper {
             width: 20px;
             height: 20px;
-            top: -3px;
+            top: -2px;
         }
 
         .checkmark {
