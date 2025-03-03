@@ -162,10 +162,9 @@
                 window.location.href = '/about';  
                 return;
             } else if (message.uid === '2') {
-                window.location.href = '/contact'; // Navigate to Contact page
+                window.location.href = '/contact';  
                 return;
-            }
-            // For messages 3 and 4, do nothing
+            } 
             return;
         }
 
@@ -533,31 +532,32 @@
     }
 
     .checkbox-wrapper {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
-        margin: 0 4px;
     }
 
     .checkbox-wrapper input {
         opacity: 0;
-        position: absolute;
         width: 0;
         height: 0;
     }
 
     .checkmark {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
         height: 20px;
+        width: 20px;
+        background-color: transparent;
         border: 2px solid var(--text-muted);
         border-radius: 6px;
-        transition: all 0.2s ease;
+    }
+
+    .checkbox-wrapper:hover input ~ .checkmark {
+        border-color: #0D6EFD;
     }
 
     .checkbox-wrapper input:checked ~ .checkmark {
@@ -565,19 +565,16 @@
         border-color: #0D6EFD;
     }
 
-    .checkmark::after {
+    .checkbox-wrapper input:checked ~ .checkmark:after {
         content: '';
-        display: none;
-        width: 5px;
-        height: 10px;
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 4px;
+        height: 8px;
         border: solid white;
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
-        margin-top: -2px; /* Fine-tune vertical alignment */
-    }
-
-    .checkbox-wrapper input:checked ~ .checkmark::after {
-        display: block;
     }
 
     .star-btn {
@@ -1139,7 +1136,6 @@
 
         .tool-buttons {
             gap: 4px;
-            margin-top: 2px;
         }
 
         .tool-btn {
@@ -1154,16 +1150,12 @@
         .checkbox-wrapper {
             width: 20px;
             height: 20px;
+            top: -3px;
         }
 
         .checkmark {
-            width: 18px;
-            height: 18px;
-        }
-
-        .checkmark::after {
-            width: 4px;
-            height: 8px;
+            height: 20px;
+            width: 20px;
         }
     }
 
@@ -1250,13 +1242,8 @@
         }
 
         .checkmark {
-            width: 16px;
-            height: 16px;
-        }
-
-        .checkmark::after {
-            width: 3px;
-            height: 6px;
+            height: 18px;
+            width: 18px;
         }
     }
  
