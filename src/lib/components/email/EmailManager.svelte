@@ -114,7 +114,7 @@
             </button>
             <button class="action-btn danger" on:click={() => dispatch('deleteInbox', { email: $emailStore.currentEmail })}>
                 <i class="bi bi-trash action-btn-icon"></i>
-                Delete <span class="delete-email">Email</span>
+                Delete<span class="delete-email">Email</span>
             </button>
             <button class="action-btn" on:click={() => dispatch('showEmails')}>
                 <i class="bi bi-list action-btn-icon"></i>
@@ -196,7 +196,10 @@
         background: rgba(255, 255, 255, 0.2);
         opacity: 1;
     }
-
+    .delete-email{
+        position: relative;
+            left:-4px;
+        }
     .copy-button i {
         font-size: 1.2rem;
         transition: all 0.2s;
