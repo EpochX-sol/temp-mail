@@ -570,7 +570,7 @@
         content: '';
         position: absolute;
         left: 5px;
-        top: 2px;
+        top: 4px;
         width: 4px;
         height: 8px;
         border: solid white;
@@ -1151,7 +1151,7 @@
         .checkbox-wrapper {
             width: 20px;
             height: 20px;
-            top: -3px;
+            top: -1px;
         }
 
         .checkmark {

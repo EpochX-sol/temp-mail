@@ -54,7 +54,7 @@ export const UI_CONFIG = {
             name: 'us@gmail.com',
             subject: 'Welcome to our service - Welcome to the inboxes.com temporary email service',
             time: 'A few seconds ago',
-            date: new Date(Date.now() - 8640000).toISOString(),
+            date: new Date(Date.now() - 10000).toISOString(),
             from: {
                 name: 'Welcome Bot',
                 address: 'us@gmail.com'
