@@ -1151,7 +1151,7 @@
         .checkbox-wrapper {
             width: 20px;
             height: 20px;
-            top: -1px;
+            top: -3px;
         }
 
         .checkmark {
